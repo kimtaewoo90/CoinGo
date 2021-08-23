@@ -20,7 +20,6 @@ C:\Users\tangb\source\repos\CoinGo\bin\Debug\Newtonsoft.Json.xml
 C:\Users\tangb\source\repos\CoinGo\bin\Debug\System.IdentityModel.Tokens.Jwt.xml
 C:\Users\tangb\source\repos\CoinGo\bin\Debug\websocket-sharp.xml
 C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.csproj.AssemblyReference.cache
-C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.PositionScreen.resources
 C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.Properties.Resources.resources
 C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.csproj.GenerateResource.cache
 C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.csproj.CoreCompileInputs.cache
