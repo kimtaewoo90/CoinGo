@@ -9,12 +9,15 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Newtonsoft.Json.Linq;
 using WebSocketSharp;
+using System.Threading;
 
 namespace CoinGo
 {
     public partial class Main : Form
     {
-        
+
+        Thread PositionThread = null;
+
         public Main()
         {
             InitializeComponent();
@@ -25,48 +28,56 @@ namespace CoinGo
         public void CoinStart()
         {
 
-            // Universe
-            // string Type, string StockCode, string StockName, string Price, string Change, string TickSpeed
+            PositionThread = new Thread(new ThreadStart(UpdatePosition));
+            PositionThread.Start();
 
-            string AccessKey = "yTg9B5SL2BYgQxTed5LVbuVs7gXPa2czy7xDDx5m"; //발급받은 AccessKey를 넣어줍니다.
-            string SecretKey = "dxzr3r5KcJTxMkVCrFefWzhluFWPxdS1MDtAzKk5"; //발급받은 SecretKey를 넣어줍니다.
-
-            UpbitAPI upbit = new UpbitAPI(AccessKey, SecretKey);
             UpbitWebSocket WS = new UpbitWebSocket();
 
-            // {{  "currency": "BTT",  "balance": "40683.95140533",  "locked": "0.0",  "avg_buy_price": "5.59",  "avg_buy_price_modified": false,  "unit_currency": "KRW"}}
-            List<JObject> Result = upbit.GetAccount();
-
-            // Display Position
-            for (int i = 0; i < Result.Count; i++)
-            {
-                var currency = Result[i].GetValue("currency").ToString().Trim();
-                var balance = Result[i].GetValue("balance").ToString().Trim();
-                var locked = Result[i].GetValue("locked").ToString().Trim();
-                var avg_buy_price = Result[i].GetValue("avg_buy_price").ToString().Trim();
-                var cur_price = "0.0";
-                if (!Params.CoinInfoDict.ContainsKey(currency))
-                    cur_price = "0.0";
-                else cur_price = Params.CoinInfoDict[currency].curPrice.ToString().Trim();
-                var rate = $"{1 - double.Parse(cur_price) / double.Parse(avg_buy_price)} %";
-                var tradingPnL = $"{(double.Parse(cur_price) - double.Parse(avg_buy_price)) * double.Parse(balance)} 원";
-                var unit_currency = Result[i].GetValue("unit_currency").ToString().Trim();
-
-                PositionState state = new PositionState(currency.ToString(), balance.ToString(), locked.ToString(), avg_buy_price.ToString(), unit_currency.ToString());
-                Params.CoinPositionDict[currency] = state;
-
-                DisplayTargetCoins(currency, balance, avg_buy_price, cur_price, rate, tradingPnL);
-                write_sys_log("Displayed Coin position", 0);
-            }
-
-
-            var Markets = upbit.GetMarkets();
-            var MarketTickers = upbit.GetMarketTicker(Markets).Item1;
-            var MarketTickersKrName = upbit.GetMarketTicker(Markets).Item2;
+            var Markets = Params.upbit.GetMarkets();
+            var MarketTickers = Params.upbit.GetMarketTicker(Markets).Item1;
+            var MarketTickersKrName = Params.upbit.GetMarketTicker(Markets).Item2;
 
             // Make SendMsg for WebSocket
             var sendMsg = WS.MakeSendMsg(MarketTickers, "ticker");
             SendToWebSocket(sendMsg);
+        }
+
+        public void UpdatePosition()
+        {
+            List<JObject> Result = Params.upbit.GetAccount();
+            while(true)
+            {
+                // Display Position
+                for (int i = 0; i < Result.Count; i++)
+                {
+                    var currency = Result[i].GetValue("currency").ToString().Trim();
+                    var balance = Result[i].GetValue("balance").ToString().Trim();
+                    var locked = Result[i].GetValue("locked").ToString().Trim();
+                    var avg_buy_price = Result[i].GetValue("avg_buy_price").ToString().Trim();
+                    var cur_price = "0.0";
+
+                    //string[] codes = currency.Split('-');
+                    string code = $"KRW-{currency}";
+                    if (Params.CoinInfoDict.Count != 0)
+                    {
+                        if (Params.CoinInfoDict.ContainsKey(code))
+                            cur_price = Params.CoinInfoDict[code].curPrice;   
+                    }
+
+
+                    var rate = $"{1 - double.Parse(cur_price) / double.Parse(avg_buy_price)} %";
+                    var tradingPnL = $"{(double.Parse(cur_price) - double.Parse(avg_buy_price)) * double.Parse(balance)} 원";
+                    var unit_currency = Result[i].GetValue("unit_currency").ToString().Trim();
+
+                    PositionState state = new PositionState(currency.ToString(), balance.ToString(), locked.ToString(), avg_buy_price.ToString(), unit_currency.ToString());
+                    Params.CoinPositionDict[currency] = state;
+
+                    DisplayTargetCoins(currency, balance, avg_buy_price, cur_price, rate, tradingPnL);
+                    write_sys_log("Displayed Coin position", 0);
+                }
+
+            }
+
         }
 
         public void write_sys_log(String text, int is_Clear)
@@ -239,17 +250,6 @@ namespace CoinGo
             //logs.write_sys_log($"{res["code"].ToString()} {res["trade_price"].ToString()}" , 0);
 
             displayUniverseMarket(res);
-
-            string[] codes = code.Split('-');
-            if (Params.CoinPositionDict.ContainsKey(codes[1]))
-            {
-                var balance = Params.CoinPositionDict[codes[1]].balance.ToString();
-                var buyPrice = Params.CoinPositionDict[codes[1]].avg_buy_price.ToString();
-                var curPrice = res["trade_price"].ToString();
-                var rate = $"{1 - double.Parse(curPrice) / double.Parse(buyPrice)} %";
-                var tradingPnL = $"{(double.Parse(curPrice) - double.Parse(buyPrice)) * double.Parse(balance)} 원";
-                DisplayTargetCoins(code, balance, buyPrice, curPrice, rate, tradingPnL);
-            }
         }
 
     }

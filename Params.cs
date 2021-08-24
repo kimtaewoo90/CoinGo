@@ -11,6 +11,10 @@ namespace CoinGo
     {
         public static string CurTime { get; set; }
 
+        public readonly static string AccessKey = "yTg9B5SL2BYgQxTed5LVbuVs7gXPa2czy7xDDx5m"; //발급받은 AccessKey를 넣어줍니다.
+        public readonly static string SecretKey = "dxzr3r5KcJTxMkVCrFefWzhluFWPxdS1MDtAzKk5"; //발급받은 SecretKey를 넣어줍니다.
+
+        public static UpbitAPI upbit = new UpbitAPI(AccessKey, SecretKey);
 
         // Coin
         public static Dictionary<string, CoinState> CoinInfoDict = new Dictionary<string, CoinState>();
