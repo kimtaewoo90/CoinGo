@@ -10,7 +10,6 @@ namespace CoinGo
 {
     class Utils
     {
-        Logs logs = new Logs();
         public string get_cur_tm()
         {
             DateTime cur_time;
@@ -43,7 +42,7 @@ namespace CoinGo
                 }
                 catch (AccessViolationException ex)
                 {
-                    logs.write_sys_log("delay() ex.Message : [" + ex.Message + "]\r\n", 0);
+                    //logs.write_sys_log("delay() ex.Message : [" + ex.Message + "]\r\n", 0);
                 }
 
                 ThisMoment = DateTime.Now;

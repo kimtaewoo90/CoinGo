@@ -26,5 +26,4 @@ C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.csproj.CoreCompileInputs.cac
 C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.csproj.CopyComplete
 C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.exe
 C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.pdb
-C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.Logs.resources
 C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.Main.resources
