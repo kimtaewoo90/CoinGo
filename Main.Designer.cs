@@ -31,16 +31,25 @@ namespace CoinGo
         {
             this.TabControl = new System.Windows.Forms.TabControl();
             this.MarketUniverse = new System.Windows.Forms.TabPage();
+            this.OrderbookDataGrid = new System.Windows.Forms.DataGridView();
+            this.Orderbook_AskPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Orderbook_Price = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Orderbook_Bid = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.UniverseDataGrid = new System.Windows.Forms.DataGridView();
             this.ticker = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.curPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.change = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.volume = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Blotter = new System.Windows.Forms.TabPage();
+            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.BLT_OrderCoinCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.BLT_OrderCoinName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.BLT_OrderType = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.BLT_OrderQty = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.BLT_OrderPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.BLT_filledQty = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.BLT_filledPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Position = new System.Windows.Forms.TabPage();
-            this.tabPage4 = new System.Windows.Forms.TabPage();
-            this.LogBox = new System.Windows.Forms.TextBox();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.positionDataGrid = new System.Windows.Forms.DataGridView();
             this.Code = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Quantity = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -48,12 +57,18 @@ namespace CoinGo
             this.curPrice_position = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.rate = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tradingPnL = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.LogBox = new System.Windows.Forms.TextBox();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.TabControl.SuspendLayout();
             this.MarketUniverse.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.OrderbookDataGrid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.UniverseDataGrid)).BeginInit();
+            this.Blotter.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.Position.SuspendLayout();
-            this.tabPage4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.positionDataGrid)).BeginInit();
+            this.tabPage4.SuspendLayout();
             this.SuspendLayout();
             // 
             // TabControl
@@ -65,19 +80,48 @@ namespace CoinGo
             this.TabControl.Location = new System.Drawing.Point(12, 21);
             this.TabControl.Name = "TabControl";
             this.TabControl.SelectedIndex = 0;
-            this.TabControl.Size = new System.Drawing.Size(808, 672);
+            this.TabControl.Size = new System.Drawing.Size(835, 672);
             this.TabControl.TabIndex = 0;
             // 
             // MarketUniverse
             // 
+            this.MarketUniverse.Controls.Add(this.OrderbookDataGrid);
             this.MarketUniverse.Controls.Add(this.UniverseDataGrid);
             this.MarketUniverse.Location = new System.Drawing.Point(4, 22);
             this.MarketUniverse.Name = "MarketUniverse";
             this.MarketUniverse.Padding = new System.Windows.Forms.Padding(3);
-            this.MarketUniverse.Size = new System.Drawing.Size(477, 646);
+            this.MarketUniverse.Size = new System.Drawing.Size(827, 646);
             this.MarketUniverse.TabIndex = 0;
             this.MarketUniverse.Text = "Market";
             this.MarketUniverse.UseVisualStyleBackColor = true;
+            // 
+            // OrderbookDataGrid
+            // 
+            this.OrderbookDataGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.OrderbookDataGrid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.Orderbook_AskPrice,
+            this.Orderbook_Price,
+            this.Orderbook_Bid});
+            this.OrderbookDataGrid.Location = new System.Drawing.Point(465, 146);
+            this.OrderbookDataGrid.Name = "OrderbookDataGrid";
+            this.OrderbookDataGrid.RowTemplate.Height = 23;
+            this.OrderbookDataGrid.Size = new System.Drawing.Size(343, 494);
+            this.OrderbookDataGrid.TabIndex = 1;
+            // 
+            // Orderbook_AskPrice
+            // 
+            this.Orderbook_AskPrice.HeaderText = "Ask";
+            this.Orderbook_AskPrice.Name = "Orderbook_AskPrice";
+            // 
+            // Orderbook_Price
+            // 
+            this.Orderbook_Price.HeaderText = "Price";
+            this.Orderbook_Price.Name = "Orderbook_Price";
+            // 
+            // Orderbook_Bid
+            // 
+            this.Orderbook_Bid.HeaderText = "Bid";
+            this.Orderbook_Bid.Name = "Orderbook_Bid";
             // 
             // UniverseDataGrid
             // 
@@ -89,39 +133,99 @@ namespace CoinGo
             this.volume});
             this.UniverseDataGrid.Location = new System.Drawing.Point(6, 6);
             this.UniverseDataGrid.Name = "UniverseDataGrid";
+            this.UniverseDataGrid.ReadOnly = true;
             this.UniverseDataGrid.RowTemplate.Height = 23;
-            this.UniverseDataGrid.Size = new System.Drawing.Size(465, 637);
+            this.UniverseDataGrid.Size = new System.Drawing.Size(453, 637);
             this.UniverseDataGrid.TabIndex = 0;
+            this.UniverseDataGrid.CellMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.UniverseDataGrid_CellMouseDoubleClick);
             // 
             // ticker
             // 
             this.ticker.HeaderText = "코드";
             this.ticker.Name = "ticker";
+            this.ticker.ReadOnly = true;
             // 
             // curPrice
             // 
             this.curPrice.HeaderText = "현재가";
             this.curPrice.Name = "curPrice";
+            this.curPrice.ReadOnly = true;
             // 
             // change
             // 
             this.change.HeaderText = "등락률";
             this.change.Name = "change";
+            this.change.ReadOnly = true;
             // 
             // volume
             // 
             this.volume.HeaderText = "거래량";
             this.volume.Name = "volume";
+            this.volume.ReadOnly = true;
             // 
             // Blotter
             // 
+            this.Blotter.Controls.Add(this.dataGridView1);
             this.Blotter.Location = new System.Drawing.Point(4, 22);
             this.Blotter.Name = "Blotter";
             this.Blotter.Padding = new System.Windows.Forms.Padding(3);
-            this.Blotter.Size = new System.Drawing.Size(477, 646);
+            this.Blotter.Size = new System.Drawing.Size(827, 646);
             this.Blotter.TabIndex = 1;
             this.Blotter.Text = "Blotter";
             this.Blotter.UseVisualStyleBackColor = true;
+            // 
+            // dataGridView1
+            // 
+            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.BLT_OrderCoinCode,
+            this.BLT_OrderCoinName,
+            this.BLT_OrderType,
+            this.BLT_OrderQty,
+            this.BLT_OrderPrice,
+            this.BLT_filledQty,
+            this.BLT_filledPrice});
+            this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridView1.Location = new System.Drawing.Point(3, 3);
+            this.dataGridView1.Name = "dataGridView1";
+            this.dataGridView1.RowTemplate.Height = 23;
+            this.dataGridView1.Size = new System.Drawing.Size(821, 640);
+            this.dataGridView1.TabIndex = 0;
+            // 
+            // BLT_OrderCoinCode
+            // 
+            this.BLT_OrderCoinCode.HeaderText = "Code";
+            this.BLT_OrderCoinCode.Name = "BLT_OrderCoinCode";
+            // 
+            // BLT_OrderCoinName
+            // 
+            this.BLT_OrderCoinName.HeaderText = "KrName";
+            this.BLT_OrderCoinName.Name = "BLT_OrderCoinName";
+            // 
+            // BLT_OrderType
+            // 
+            this.BLT_OrderType.HeaderText = "OrderType";
+            this.BLT_OrderType.Name = "BLT_OrderType";
+            // 
+            // BLT_OrderQty
+            // 
+            this.BLT_OrderQty.HeaderText = "Qty";
+            this.BLT_OrderQty.Name = "BLT_OrderQty";
+            // 
+            // BLT_OrderPrice
+            // 
+            this.BLT_OrderPrice.HeaderText = "Price";
+            this.BLT_OrderPrice.Name = "BLT_OrderPrice";
+            // 
+            // BLT_filledQty
+            // 
+            this.BLT_filledQty.HeaderText = "filledQty";
+            this.BLT_filledQty.Name = "BLT_filledQty";
+            // 
+            // BLT_filledPrice
+            // 
+            this.BLT_filledPrice.HeaderText = "filledPrice";
+            this.BLT_filledPrice.Name = "BLT_filledPrice";
             // 
             // Position
             // 
@@ -129,42 +233,10 @@ namespace CoinGo
             this.Position.Location = new System.Drawing.Point(4, 22);
             this.Position.Name = "Position";
             this.Position.Padding = new System.Windows.Forms.Padding(3);
-            this.Position.Size = new System.Drawing.Size(800, 646);
+            this.Position.Size = new System.Drawing.Size(827, 646);
             this.Position.TabIndex = 2;
             this.Position.Text = "Position";
             this.Position.UseVisualStyleBackColor = true;
-            // 
-            // tabPage4
-            // 
-            this.tabPage4.Controls.Add(this.LogBox);
-            this.tabPage4.Location = new System.Drawing.Point(4, 22);
-            this.tabPage4.Name = "tabPage4";
-            this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage4.Size = new System.Drawing.Size(800, 646);
-            this.tabPage4.TabIndex = 3;
-            this.tabPage4.Text = "tabPage4";
-            this.tabPage4.UseVisualStyleBackColor = true;
-            // 
-            // LogBox
-            // 
-            this.LogBox.BackColor = System.Drawing.SystemColors.InactiveCaptionText;
-            this.LogBox.Font = new System.Drawing.Font("굴림", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.LogBox.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
-            this.LogBox.Location = new System.Drawing.Point(3, 6);
-            this.LogBox.Multiline = true;
-            this.LogBox.Name = "LogBox";
-            this.LogBox.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal;
-            this.LogBox.Size = new System.Drawing.Size(791, 638);
-            this.LogBox.TabIndex = 8;
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.Location = new System.Drawing.Point(826, 35);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(340, 652);
-            this.groupBox1.TabIndex = 9;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "groupBox1";
             // 
             // positionDataGrid
             // 
@@ -176,10 +248,11 @@ namespace CoinGo
             this.curPrice_position,
             this.rate,
             this.tradingPnL});
-            this.positionDataGrid.Location = new System.Drawing.Point(7, 7);
+            this.positionDataGrid.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.positionDataGrid.Location = new System.Drawing.Point(3, 3);
             this.positionDataGrid.Name = "positionDataGrid";
             this.positionDataGrid.RowTemplate.Height = 23;
-            this.positionDataGrid.Size = new System.Drawing.Size(787, 633);
+            this.positionDataGrid.Size = new System.Drawing.Size(821, 640);
             this.positionDataGrid.TabIndex = 0;
             // 
             // Code
@@ -212,22 +285,58 @@ namespace CoinGo
             this.tradingPnL.HeaderText = "수익(\\)";
             this.tradingPnL.Name = "tradingPnL";
             // 
+            // tabPage4
+            // 
+            this.tabPage4.Controls.Add(this.LogBox);
+            this.tabPage4.Location = new System.Drawing.Point(4, 22);
+            this.tabPage4.Name = "tabPage4";
+            this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage4.Size = new System.Drawing.Size(827, 646);
+            this.tabPage4.TabIndex = 3;
+            this.tabPage4.Text = "Logs";
+            this.tabPage4.UseVisualStyleBackColor = true;
+            // 
+            // LogBox
+            // 
+            this.LogBox.BackColor = System.Drawing.SystemColors.InactiveCaptionText;
+            this.LogBox.Font = new System.Drawing.Font("굴림", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.LogBox.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            this.LogBox.Location = new System.Drawing.Point(833, 6);
+            this.LogBox.Multiline = true;
+            this.LogBox.Name = "LogBox";
+            this.LogBox.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal;
+            this.LogBox.Size = new System.Drawing.Size(338, 634);
+            this.LogBox.TabIndex = 8;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Location = new System.Drawing.Point(853, 41);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(340, 652);
+            this.groupBox1.TabIndex = 9;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "groupBox1";
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1170, 699);
+            this.ClientSize = new System.Drawing.Size(1217, 699);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.TabControl);
             this.Name = "Main";
             this.Text = "Form1";
+            this.Load += new System.EventHandler(this.Main_Load);
             this.TabControl.ResumeLayout(false);
             this.MarketUniverse.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.OrderbookDataGrid)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.UniverseDataGrid)).EndInit();
+            this.Blotter.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.Position.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.positionDataGrid)).EndInit();
             this.tabPage4.ResumeLayout(false);
             this.tabPage4.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.positionDataGrid)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -253,6 +362,18 @@ namespace CoinGo
         private System.Windows.Forms.DataGridViewTextBoxColumn curPrice_position;
         private System.Windows.Forms.DataGridViewTextBoxColumn rate;
         private System.Windows.Forms.DataGridViewTextBoxColumn tradingPnL;
+        private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn BLT_OrderCoinCode;
+        private System.Windows.Forms.DataGridViewTextBoxColumn BLT_OrderCoinName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn BLT_OrderType;
+        private System.Windows.Forms.DataGridViewTextBoxColumn BLT_OrderQty;
+        private System.Windows.Forms.DataGridViewTextBoxColumn BLT_OrderPrice;
+        private System.Windows.Forms.DataGridViewTextBoxColumn BLT_filledQty;
+        private System.Windows.Forms.DataGridViewTextBoxColumn BLT_filledPrice;
+        private System.Windows.Forms.DataGridView OrderbookDataGrid;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Orderbook_AskPrice;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Orderbook_Price;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Orderbook_Bid;
     }
 }
 
