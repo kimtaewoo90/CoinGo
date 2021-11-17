@@ -60,6 +60,7 @@ namespace CoinGo
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.LogBox = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.Orderbook_Code = new System.Windows.Forms.Label();
             this.TabControl.SuspendLayout();
             this.MarketUniverse.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.OrderbookDataGrid)).BeginInit();
@@ -85,6 +86,7 @@ namespace CoinGo
             // 
             // MarketUniverse
             // 
+            this.MarketUniverse.Controls.Add(this.Orderbook_Code);
             this.MarketUniverse.Controls.Add(this.OrderbookDataGrid);
             this.MarketUniverse.Controls.Add(this.UniverseDataGrid);
             this.MarketUniverse.Location = new System.Drawing.Point(4, 22);
@@ -102,10 +104,10 @@ namespace CoinGo
             this.Orderbook_AskPrice,
             this.Orderbook_Price,
             this.Orderbook_Bid});
-            this.OrderbookDataGrid.Location = new System.Drawing.Point(465, 146);
+            this.OrderbookDataGrid.Location = new System.Drawing.Point(465, 57);
             this.OrderbookDataGrid.Name = "OrderbookDataGrid";
             this.OrderbookDataGrid.RowTemplate.Height = 23;
-            this.OrderbookDataGrid.Size = new System.Drawing.Size(343, 494);
+            this.OrderbookDataGrid.Size = new System.Drawing.Size(343, 583);
             this.OrderbookDataGrid.TabIndex = 1;
             // 
             // Orderbook_AskPrice
@@ -317,6 +319,16 @@ namespace CoinGo
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "groupBox1";
             // 
+            // Orderbook_Code
+            // 
+            this.Orderbook_Code.AutoSize = true;
+            this.Orderbook_Code.Font = new System.Drawing.Font("굴림", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.Orderbook_Code.Location = new System.Drawing.Point(465, 18);
+            this.Orderbook_Code.Name = "Orderbook_Code";
+            this.Orderbook_Code.Size = new System.Drawing.Size(154, 27);
+            this.Orderbook_Code.TabIndex = 2;
+            this.Orderbook_Code.Text = "Coin Code";
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
@@ -329,6 +341,7 @@ namespace CoinGo
             this.Load += new System.EventHandler(this.Main_Load);
             this.TabControl.ResumeLayout(false);
             this.MarketUniverse.ResumeLayout(false);
+            this.MarketUniverse.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.OrderbookDataGrid)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.UniverseDataGrid)).EndInit();
             this.Blotter.ResumeLayout(false);
@@ -374,6 +387,7 @@ namespace CoinGo
         private System.Windows.Forms.DataGridViewTextBoxColumn Orderbook_AskPrice;
         private System.Windows.Forms.DataGridViewTextBoxColumn Orderbook_Price;
         private System.Windows.Forms.DataGridViewTextBoxColumn Orderbook_Bid;
+        private System.Windows.Forms.Label Orderbook_Code;
     }
 }
 

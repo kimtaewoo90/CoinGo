@@ -18,6 +18,7 @@ namespace CoinGo
 
         Thread PositionThread = null;
         Thread OrderbookThread = null;
+        Thread LogThread = null;
 
         delegate void Ctr_Involk(Control ctr, string text);
 
@@ -44,6 +45,9 @@ namespace CoinGo
 
             OrderbookThread = new Thread(new ThreadStart(UpdateOrderbook));
             OrderbookThread.Start();
+
+            LogThread = new Thread(new ThreadStart(UpdateLog));
+            LogThread.Start();
 
             UpbitWebSocket WS = new UpbitWebSocket();
 
@@ -81,6 +85,8 @@ namespace CoinGo
                 CoinState state = new CoinState(res);
                 Params.CoinInfoDict[code] = state;
                 DisplayUniverseMarket(res);
+
+                UpdateSignals(res);
             }
 
             // Orderbook of each coins.
@@ -120,42 +126,45 @@ namespace CoinGo
                             if (row.Cells["ticker"].Value.ToString() == code || row.Cells["ticker"].Value == null)
                             {
                                 row.Cells["ticker"].Value = code;
-                                row.Cells["curPrice"].Value = curPrice.ToString();
-                                row.Cells["change"].Value = change.ToString();
-                                row.Cells["volume"].Value = volume.ToString();
+                                row.Cells["curPrice"].Value = String.Format("{0:0,0}", curPrice);
+                                row.Cells["change"].Value = String.Format("{0:0,0}", change);
+                                row.Cells["volume"].Value = String.Format("{0:0,0}", volume);
                                 return;
                             }
                         }
 
-                        UniverseDataGrid.Rows.Add(code, curPrice.ToString(), change.ToString(), volume.ToString());
+                        UniverseDataGrid.Rows.Add(code, String.Format("{0:0,0}", curPrice), String.Format("{0:0,0}", change), String.Format("{0:0,0}", volume));
                     }
 
-                    else UniverseDataGrid.Rows.Add(code, curPrice.ToString(), change.ToString(), volume.ToString());
+                    else UniverseDataGrid.Rows.Add(code, String.Format("{0:0,0}", curPrice), String.Format("{0:0,0}", change), String.Format("{0:0,0}", volume));
 
                 }));
             }
 
             else
             {
-                if (UniverseDataGrid.Rows.Count > 0)
+                if (UniverseDataGrid.Rows.Count > 1)
                 {
                     foreach (DataGridViewRow row in UniverseDataGrid.Rows)
                     {
+                        if (row.Cells["ticker"].Value == null)
+                            break;
+
+
                         if (row.Cells["ticker"].Value.ToString() == code || row.Cells["ticker"].Value == null)
                         {
                             row.Cells["ticker"].Value = code;
-                            row.Cells["curPrice"].Value = curPrice.ToString();
-                            row.Cells["change"].Value = change.ToString();
-                            row.Cells["volume"].Value = volume.ToString();
+                            row.Cells["curPrice"].Value = String.Format("{0:0,0}", curPrice);
+                            row.Cells["change"].Value = String.Format("{0:0,0}", change);
+                            row.Cells["volume"].Value = String.Format("{0:0,0}", volume);
                             return;
                         }
                     }
 
-                    UniverseDataGrid.Rows.Add(code, curPrice.ToString(), change.ToString(), volume.ToString());
+                    UniverseDataGrid.Rows.Add(code, String.Format("{0:0,0}", curPrice), String.Format("{0:0,0}", change), String.Format("{0:0,0}", volume));
                 }
 
-                else UniverseDataGrid.Rows.Add(code, curPrice.ToString(), change.ToString(), volume.ToString());
-
+                else UniverseDataGrid.Rows.Add(code, String.Format("{0:0,0}", curPrice), String.Format("{0:0,0}", change), String.Format("{0:0,0}", volume));
             }
         }
 
@@ -169,6 +178,7 @@ namespace CoinGo
                 {
                     OrderbookDataGrid.Invoke(new MethodInvoker(delegate ()
                     {
+                        Orderbook_Code.Text = code;
 
                         OrderbookDataGrid.Rows[0].Cells[1].Value = orderbook["orderbook_units"][9]["ask_price"];
                         OrderbookDataGrid.Rows[0].Cells[0].Value = orderbook["orderbook_units"][9]["ask_size"];
@@ -234,6 +244,8 @@ namespace CoinGo
                 }
                 else
                 {
+                    Orderbook_Code.Text = code;
+
                     OrderbookDataGrid.Rows[0].Cells[1].Value = orderbook["orderbook_units"][9]["ask_price"];
                     OrderbookDataGrid.Rows[0].Cells[0].Value = orderbook["orderbook_units"][9]["ask_size"];
 
@@ -298,7 +310,81 @@ namespace CoinGo
             }
         }
 
+        public void DisplayTargetCoins(string currency, string balance, string buy_price, string cur_price, string rate, string pnl)
+        {
 
+
+            if (positionDataGrid.InvokeRequired)
+            {
+                positionDataGrid.Invoke(new MethodInvoker(delegate ()
+                {
+                    positionDataGrid.Invoke(new MethodInvoker(delegate ()
+                    {
+                        if (positionDataGrid.Rows.Count > 1)
+                        {
+                            foreach (DataGridViewRow row in positionDataGrid.Rows)
+                            {
+                                if (row.Cells["code"].Value == null)
+                                    break;
+
+
+                                if (row.Cells["code"].Value.ToString() == currency || row.Cells["code"].Value == null)
+                                {
+                                    row.Cells["code"].Value = currency;
+                                    row.Cells["Quantity"].Value = balance;
+                                    row.Cells["buyPrice"].Value = buy_price;
+                                    row.Cells["curPrice_position"].Value = cur_price;
+                                    row.Cells["rate"].Value = rate;
+                                    row.Cells["tradingPnL"].Value = pnl;
+                                    return;
+                                }
+                            }
+
+                            positionDataGrid.Rows.Add(currency, balance, buy_price, cur_price, rate, pnl);
+                        }
+
+                        else positionDataGrid.Rows.Add(currency, balance, buy_price, cur_price, rate, pnl);
+
+                    }));
+                }));
+            }
+
+            else
+            {
+                if (positionDataGrid.Rows.Count > 1)
+                {
+                    foreach (DataGridViewRow row in positionDataGrid.Rows)
+                    {
+                        if (row.Cells["code"].Value == null)
+                            break;
+
+
+                        if (row.Cells["code"].Value.ToString() == currency || row.Cells["code"].Value == null)
+                        {
+                            row.Cells["code"].Value = currency;
+                            row.Cells["Quantity"].Value = balance;
+                            row.Cells["buyPrice"].Value = buy_price;
+                            row.Cells["curPrice_position"].Value = cur_price;
+                            row.Cells["rate"].Value = rate;
+                            row.Cells["tradingPnL"].Value = pnl;
+                            return;
+                        }
+                    }
+
+                    positionDataGrid.Rows.Add(currency, balance, buy_price, cur_price, rate, pnl);
+                }
+
+                else positionDataGrid.Rows.Add(currency, balance, buy_price, cur_price, rate, pnl);
+            }
+        }
+
+        // LogThread
+        public void UpdateLog()
+        {
+
+        }
+
+        // PositionThread
         public void UpdatePosition()
         {
             List<JObject> Result = Params.upbit.GetAccount();
@@ -322,7 +408,7 @@ namespace CoinGo
                     }
 
 
-                    var rate = $"{Math.Round((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1, 2)} %";
+                    var rate = $"{Math.Round(((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100, 2)} %";
                     var tradingPnL = $"{Math.Round((double.Parse(cur_price) - double.Parse(avg_buy_price)) * double.Parse(balance), 2)} 원";
                     var unit_currency = Result[i].GetValue("unit_currency").ToString().Trim();
 
@@ -330,7 +416,7 @@ namespace CoinGo
                     Params.CoinPositionDict[currency] = state;
 
                     DisplayTargetCoins(currency, balance, avg_buy_price, cur_price, rate, tradingPnL);
-                    write_sys_log("Displayed Coin position", 0);
+                    //write_sys_log("Displayed Coin position", 0);
                 }
 
             }
@@ -338,7 +424,7 @@ namespace CoinGo
         }
 
 
-        /* WebSocket Thread for Orderbook */
+        // OrderbookThread
         public void UpdateOrderbook()
         {
             var Markets = Params.upbit.GetMarkets();
@@ -351,7 +437,11 @@ namespace CoinGo
             
         }
 
-
+        // SignalThread
+        public void UpdateSignals(JObject res)
+        {
+            var data = res;
+        }
 
 
 
