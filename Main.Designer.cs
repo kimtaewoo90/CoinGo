@@ -29,8 +29,13 @@ namespace CoinGo
         /// </summary>
         private void InitializeComponent()
         {
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             this.TabControl = new System.Windows.Forms.TabControl();
             this.MarketUniverse = new System.Windows.Forms.TabPage();
+            this.Orderbook_Code = new System.Windows.Forms.Label();
             this.OrderbookDataGrid = new System.Windows.Forms.DataGridView();
             this.Orderbook_AskPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Orderbook_Price = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -60,7 +65,8 @@ namespace CoinGo
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.LogBox = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.Orderbook_Code = new System.Windows.Forms.Label();
+            this.chart2 = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.Candle_Chart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.TabControl.SuspendLayout();
             this.MarketUniverse.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.OrderbookDataGrid)).BeginInit();
@@ -70,6 +76,9 @@ namespace CoinGo
             this.Position.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.positionDataGrid)).BeginInit();
             this.tabPage4.SuspendLayout();
+            this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.chart2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Candle_Chart)).BeginInit();
             this.SuspendLayout();
             // 
             // TabControl
@@ -78,10 +87,11 @@ namespace CoinGo
             this.TabControl.Controls.Add(this.Blotter);
             this.TabControl.Controls.Add(this.Position);
             this.TabControl.Controls.Add(this.tabPage4);
-            this.TabControl.Location = new System.Drawing.Point(12, 21);
+            this.TabControl.Location = new System.Drawing.Point(17, 32);
+            this.TabControl.Margin = new System.Windows.Forms.Padding(4);
             this.TabControl.Name = "TabControl";
             this.TabControl.SelectedIndex = 0;
-            this.TabControl.Size = new System.Drawing.Size(835, 672);
+            this.TabControl.Size = new System.Drawing.Size(1193, 1008);
             this.TabControl.TabIndex = 0;
             // 
             // MarketUniverse
@@ -89,13 +99,25 @@ namespace CoinGo
             this.MarketUniverse.Controls.Add(this.Orderbook_Code);
             this.MarketUniverse.Controls.Add(this.OrderbookDataGrid);
             this.MarketUniverse.Controls.Add(this.UniverseDataGrid);
-            this.MarketUniverse.Location = new System.Drawing.Point(4, 22);
+            this.MarketUniverse.Location = new System.Drawing.Point(4, 28);
+            this.MarketUniverse.Margin = new System.Windows.Forms.Padding(4);
             this.MarketUniverse.Name = "MarketUniverse";
-            this.MarketUniverse.Padding = new System.Windows.Forms.Padding(3);
-            this.MarketUniverse.Size = new System.Drawing.Size(827, 646);
+            this.MarketUniverse.Padding = new System.Windows.Forms.Padding(4);
+            this.MarketUniverse.Size = new System.Drawing.Size(1185, 976);
             this.MarketUniverse.TabIndex = 0;
             this.MarketUniverse.Text = "Market";
             this.MarketUniverse.UseVisualStyleBackColor = true;
+            // 
+            // Orderbook_Code
+            // 
+            this.Orderbook_Code.AutoSize = true;
+            this.Orderbook_Code.Font = new System.Drawing.Font("굴림", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.Orderbook_Code.Location = new System.Drawing.Point(664, 27);
+            this.Orderbook_Code.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.Orderbook_Code.Name = "Orderbook_Code";
+            this.Orderbook_Code.Size = new System.Drawing.Size(154, 27);
+            this.Orderbook_Code.TabIndex = 2;
+            this.Orderbook_Code.Text = "Coin Code";
             // 
             // OrderbookDataGrid
             // 
@@ -104,10 +126,11 @@ namespace CoinGo
             this.Orderbook_AskPrice,
             this.Orderbook_Price,
             this.Orderbook_Bid});
-            this.OrderbookDataGrid.Location = new System.Drawing.Point(465, 57);
+            this.OrderbookDataGrid.Location = new System.Drawing.Point(664, 86);
+            this.OrderbookDataGrid.Margin = new System.Windows.Forms.Padding(4);
             this.OrderbookDataGrid.Name = "OrderbookDataGrid";
             this.OrderbookDataGrid.RowTemplate.Height = 23;
-            this.OrderbookDataGrid.Size = new System.Drawing.Size(343, 583);
+            this.OrderbookDataGrid.Size = new System.Drawing.Size(490, 874);
             this.OrderbookDataGrid.TabIndex = 1;
             // 
             // Orderbook_AskPrice
@@ -133,11 +156,12 @@ namespace CoinGo
             this.curPrice,
             this.change,
             this.volume});
-            this.UniverseDataGrid.Location = new System.Drawing.Point(6, 6);
+            this.UniverseDataGrid.Location = new System.Drawing.Point(9, 9);
+            this.UniverseDataGrid.Margin = new System.Windows.Forms.Padding(4);
             this.UniverseDataGrid.Name = "UniverseDataGrid";
             this.UniverseDataGrid.ReadOnly = true;
             this.UniverseDataGrid.RowTemplate.Height = 23;
-            this.UniverseDataGrid.Size = new System.Drawing.Size(453, 637);
+            this.UniverseDataGrid.Size = new System.Drawing.Size(647, 956);
             this.UniverseDataGrid.TabIndex = 0;
             this.UniverseDataGrid.CellMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.UniverseDataGrid_CellMouseDoubleClick);
             // 
@@ -168,10 +192,11 @@ namespace CoinGo
             // Blotter
             // 
             this.Blotter.Controls.Add(this.dataGridView1);
-            this.Blotter.Location = new System.Drawing.Point(4, 22);
+            this.Blotter.Location = new System.Drawing.Point(4, 28);
+            this.Blotter.Margin = new System.Windows.Forms.Padding(4);
             this.Blotter.Name = "Blotter";
-            this.Blotter.Padding = new System.Windows.Forms.Padding(3);
-            this.Blotter.Size = new System.Drawing.Size(827, 646);
+            this.Blotter.Padding = new System.Windows.Forms.Padding(4);
+            this.Blotter.Size = new System.Drawing.Size(1185, 976);
             this.Blotter.TabIndex = 1;
             this.Blotter.Text = "Blotter";
             this.Blotter.UseVisualStyleBackColor = true;
@@ -188,10 +213,11 @@ namespace CoinGo
             this.BLT_filledQty,
             this.BLT_filledPrice});
             this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridView1.Location = new System.Drawing.Point(3, 3);
+            this.dataGridView1.Location = new System.Drawing.Point(4, 4);
+            this.dataGridView1.Margin = new System.Windows.Forms.Padding(4);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowTemplate.Height = 23;
-            this.dataGridView1.Size = new System.Drawing.Size(821, 640);
+            this.dataGridView1.Size = new System.Drawing.Size(1177, 968);
             this.dataGridView1.TabIndex = 0;
             // 
             // BLT_OrderCoinCode
@@ -232,10 +258,11 @@ namespace CoinGo
             // Position
             // 
             this.Position.Controls.Add(this.positionDataGrid);
-            this.Position.Location = new System.Drawing.Point(4, 22);
+            this.Position.Location = new System.Drawing.Point(4, 28);
+            this.Position.Margin = new System.Windows.Forms.Padding(4);
             this.Position.Name = "Position";
-            this.Position.Padding = new System.Windows.Forms.Padding(3);
-            this.Position.Size = new System.Drawing.Size(827, 646);
+            this.Position.Padding = new System.Windows.Forms.Padding(4);
+            this.Position.Size = new System.Drawing.Size(1185, 976);
             this.Position.TabIndex = 2;
             this.Position.Text = "Position";
             this.Position.UseVisualStyleBackColor = true;
@@ -251,10 +278,11 @@ namespace CoinGo
             this.rate,
             this.tradingPnL});
             this.positionDataGrid.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.positionDataGrid.Location = new System.Drawing.Point(3, 3);
+            this.positionDataGrid.Location = new System.Drawing.Point(4, 4);
+            this.positionDataGrid.Margin = new System.Windows.Forms.Padding(4);
             this.positionDataGrid.Name = "positionDataGrid";
             this.positionDataGrid.RowTemplate.Height = 23;
-            this.positionDataGrid.Size = new System.Drawing.Size(821, 640);
+            this.positionDataGrid.Size = new System.Drawing.Size(1177, 968);
             this.positionDataGrid.TabIndex = 0;
             // 
             // Code
@@ -290,10 +318,11 @@ namespace CoinGo
             // tabPage4
             // 
             this.tabPage4.Controls.Add(this.LogBox);
-            this.tabPage4.Location = new System.Drawing.Point(4, 22);
+            this.tabPage4.Location = new System.Drawing.Point(4, 28);
+            this.tabPage4.Margin = new System.Windows.Forms.Padding(4);
             this.tabPage4.Name = "tabPage4";
-            this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage4.Size = new System.Drawing.Size(827, 646);
+            this.tabPage4.Padding = new System.Windows.Forms.Padding(4);
+            this.tabPage4.Size = new System.Drawing.Size(1185, 976);
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "Logs";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -303,39 +332,63 @@ namespace CoinGo
             this.LogBox.BackColor = System.Drawing.SystemColors.InactiveCaptionText;
             this.LogBox.Font = new System.Drawing.Font("굴림", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.LogBox.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
-            this.LogBox.Location = new System.Drawing.Point(833, 6);
+            this.LogBox.Location = new System.Drawing.Point(1190, 9);
+            this.LogBox.Margin = new System.Windows.Forms.Padding(4);
             this.LogBox.Multiline = true;
             this.LogBox.Name = "LogBox";
             this.LogBox.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal;
-            this.LogBox.Size = new System.Drawing.Size(338, 634);
+            this.LogBox.Size = new System.Drawing.Size(481, 949);
             this.LogBox.TabIndex = 8;
             // 
             // groupBox1
             // 
-            this.groupBox1.Location = new System.Drawing.Point(853, 41);
+            this.groupBox1.Controls.Add(this.chart2);
+            this.groupBox1.Controls.Add(this.Candle_Chart);
+            this.groupBox1.Location = new System.Drawing.Point(1219, 62);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(340, 652);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox1.Size = new System.Drawing.Size(692, 978);
             this.groupBox1.TabIndex = 9;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "groupBox1";
             // 
-            // Orderbook_Code
+            // chart2
             // 
-            this.Orderbook_Code.AutoSize = true;
-            this.Orderbook_Code.Font = new System.Drawing.Font("굴림", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.Orderbook_Code.Location = new System.Drawing.Point(465, 18);
-            this.Orderbook_Code.Name = "Orderbook_Code";
-            this.Orderbook_Code.Size = new System.Drawing.Size(154, 27);
-            this.Orderbook_Code.TabIndex = 2;
-            this.Orderbook_Code.Text = "Coin Code";
+            chartArea1.Name = "ChartArea1";
+            this.chart2.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.chart2.Legends.Add(legend1);
+            this.chart2.Location = new System.Drawing.Point(7, 671);
+            this.chart2.Name = "chart2";
+            series1.ChartArea = "ChartArea1";
+            series1.Legend = "Legend1";
+            series1.Name = "Series1";
+            this.chart2.Series.Add(series1);
+            this.chart2.Size = new System.Drawing.Size(493, 300);
+            this.chart2.TabIndex = 1;
+            this.chart2.Text = "chart2";
+            // 
+            // Candle_Chart
+            // 
+            chartArea2.CursorX.IsUserSelectionEnabled = true;
+            chartArea2.Name = "ChartArea1";
+            this.Candle_Chart.ChartAreas.Add(chartArea2);
+            this.Candle_Chart.Location = new System.Drawing.Point(7, 28);
+            this.Candle_Chart.Name = "Candle_Chart";
+            this.Candle_Chart.Size = new System.Drawing.Size(678, 637);
+            this.Candle_Chart.TabIndex = 0;
+            this.Candle_Chart.Text = "chart1";
+            this.Candle_Chart.AxisViewChanged += new System.EventHandler<System.Windows.Forms.DataVisualization.Charting.ViewEventArgs>(this.ChartAxisChanged);
             // 
             // Main
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1217, 699);
+            this.ClientSize = new System.Drawing.Size(1924, 1048);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.TabControl);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Main";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Main_Load);
@@ -350,6 +403,9 @@ namespace CoinGo
             ((System.ComponentModel.ISupportInitialize)(this.positionDataGrid)).EndInit();
             this.tabPage4.ResumeLayout(false);
             this.tabPage4.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.chart2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Candle_Chart)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -388,6 +444,8 @@ namespace CoinGo
         private System.Windows.Forms.DataGridViewTextBoxColumn Orderbook_Price;
         private System.Windows.Forms.DataGridViewTextBoxColumn Orderbook_Bid;
         private System.Windows.Forms.Label Orderbook_Code;
+        private System.Windows.Forms.DataVisualization.Charting.Chart chart2;
+        private System.Windows.Forms.DataVisualization.Charting.Chart Candle_Chart;
     }
 }
 

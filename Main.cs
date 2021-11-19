@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using Newtonsoft.Json.Linq;
 using WebSocketSharp;
 using System.Threading;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace CoinGo
 {
@@ -20,14 +21,33 @@ namespace CoinGo
         Thread OrderbookThread = null;
         Thread LogThread = null;
 
+        Utils util = new Utils();
         delegate void Ctr_Involk(Control ctr, string text);
 
         public string Orderbook_ShortCode { get; set; } = "KRW-BTC";
 
+        public Dictionary<string, bool> Is_get_200_candle_data = new Dictionary<string, bool>();
 
         public Main()
         {
             InitializeComponent();
+
+            Series series = Candle_Chart.Series.Add("S_candle1");
+            series["PriceUpColor"] = "Red";
+            series["PriceDownColor"] = "Blue";
+
+            series.ChartType = SeriesChartType.Candlestick;
+            Candle_Chart.AxisViewChanged += ChartAxisChanged;
+            Candle_Chart.ChartAreas[0].AxisX.ScaleView.Zoomable = true;
+            Candle_Chart.ChartAreas[0].AxisY.ScaleView.Zoomable = true;
+            Candle_Chart.ChartAreas[0].CursorX.AutoScroll = true;
+            Candle_Chart.ChartAreas[0].CursorY.AutoScroll = true;
+            Candle_Chart.ChartAreas[0].CursorX.IsUserSelectionEnabled = true;
+            Candle_Chart.ChartAreas[0].CursorY.IsUserSelectionEnabled = true;
+            Candle_Chart.ChartAreas[0].AxisX.IsReversed = true;
+
+            Candle_Chart.ChartAreas[0].AxisX.MajorGrid.LineWidth = 0;
+            Candle_Chart.ChartAreas[0].AxisY.MajorGrid.LineWidth = 0;
 
             CoinStart();
         }
@@ -40,6 +60,21 @@ namespace CoinGo
                 OrderbookDataGrid.Rows.Add("", "", "");
             }
 
+            UpbitWebSocket WS = new UpbitWebSocket();
+
+            var Markets = Params.upbit.GetMarkets();
+            var MarketTickers = Params.upbit.GetMarketTicker(Markets).Item1;
+            var MarketTickersKrName = Params.upbit.GetMarketTicker(Markets).Item2;
+
+            for (int i = 0; i < MarketTickers.Count; i++)
+            {
+                Is_get_200_candle_data[MarketTickers[i]] = true;
+            }
+
+            // Make SendMsg for WebSocket
+            var sendMsg = WS.MakeSendMsg(MarketTickers, "ticker");
+            SendWebSocket(sendMsg);
+
             PositionThread = new Thread(new ThreadStart(UpdatePosition));
             PositionThread.Start();
 
@@ -48,16 +83,6 @@ namespace CoinGo
 
             LogThread = new Thread(new ThreadStart(UpdateLog));
             LogThread.Start();
-
-            UpbitWebSocket WS = new UpbitWebSocket();
-
-            var Markets = Params.upbit.GetMarkets();
-            var MarketTickers = Params.upbit.GetMarketTicker(Markets).Item1;
-            var MarketTickersKrName = Params.upbit.GetMarketTicker(Markets).Item2;
-
-            // Make SendMsg for WebSocket
-            var sendMsg = WS.MakeSendMsg(MarketTickers, "ticker");
-            SendWebSocket(sendMsg);
         }
 
         /* WebSocket Thread for Coin Information */
@@ -86,6 +111,10 @@ namespace CoinGo
                 Params.CoinInfoDict[code] = state;
                 DisplayUniverseMarket(res);
 
+                // Candle data 수집
+                GetCandleData(code);
+
+                //write_sys_log(Params.CandleDict[code].date_time.ToString(), 0);
                 UpdateSignals(res);
             }
 
@@ -443,6 +472,112 @@ namespace CoinGo
             var data = res;
         }
 
+        public void GetCandleData(string ticker)
+        {
+            var CandleData = "";
+            CandleState candle = new CandleState("");
+            if(Is_get_200_candle_data[ticker] is true)
+            {
+                // Create Dictionary
+                CandleData = Params.upbit.GetCandles_Minute(ticker, UpbitAPI.UpbitMinuteCandleType._3, count:200);
+                util.delay(200);
+                
+                candle = new CandleState(CandleData);
+                Params.CandleDict[ticker] = candle;
+
+                Is_get_200_candle_data[ticker] = false;
+            }
+            else if(Is_get_200_candle_data[ticker] is false)
+            {
+                CandleData = Params.upbit.GetCandles_Minute(ticker, UpbitAPI.UpbitMinuteCandleType._3, count:1);
+                util.delay(200);
+
+                // Update Candle Dictionary
+                var count = Params.CandleDict[ticker].code.Count;
+                Params.CandleDict[ticker].code.Add(CandleData.Split(new char[] { ',' })[0].Split(new char[] { ':' })[1]);
+                Params.CandleDict[ticker].date_time.Add(CandleData.Split(new char[] { ',' })[2].Split(new char[] { ':' })[1]);
+                Params.CandleDict[ticker].opening_price.Add(CandleData.Split(new char[] { ',' })[3].Split(new char[] { ':' })[1]);
+
+                // New High price > Old High price
+                if (double.Parse(CandleData.Split(new char[] { ',' })[4].Split(new char[] { ':' })[1]) >
+                    double.Parse(Params.CandleDict[ticker].high_price[count - 1]))
+                    Params.CandleDict[ticker].high_price.Add(CandleData.Split(new char[] { ',' })[4].Split(new char[] { ':' })[1]);
+                // New High price < Old High price
+                else Params.CandleDict[ticker].high_price.Add(Params.CandleDict[ticker].high_price[count - 1]);
+
+                // New Low price < Old Low price
+                if (double.Parse(CandleData.Split(new char[] { ',' })[5].Split(new char[] { ':' })[1]) <
+                    double.Parse(Params.CandleDict[ticker].low_price[count - 1]))
+                    Params.CandleDict[ticker].low_price.Add(CandleData.Split(new char[] { ',' })[5].Split(new char[] { ':' })[1]);
+                // New Low price > Old Low price
+                else Params.CandleDict[ticker].low_price.Add(Params.CandleDict[ticker].low_price[count - 1]);
+
+                Params.CandleDict[ticker].trade_price.Add(CandleData.Split(new char[] { ',' })[6].Split(new char[] { ':' })[1]);
+                Params.CandleDict[ticker].total_trading_price.Add(CandleData.Split(new char[] { ',' })[8].Split(new char[] { ':' })[1]);
+                Params.CandleDict[ticker].total_trading_volume.Add(CandleData.Split(new char[] { ',' })[9].Split(new char[] { ':' })[1]);
+
+                // Real Time Candle Chart
+                if(ticker == Orderbook_ShortCode)
+                {
+                    //CreateCandleChart();
+                }
+                // New Candle
+                //if (double.Parse(CandleData.Split(new char[] { ',' })[2].Split(new char[] { ':' })[1]) > 
+                //    double.Parse(Params.CandleDict[ticker].date_time[Params.CandleDict[ticker].date_time.Count - 1]))
+               // {
+                   
+               // }
+            }
+        }
+
+        public void ChartAxisChanged(object sender, ViewEventArgs e)
+        {
+            if (sender.Equals(Candle_Chart))
+            {
+                int startPosition = (int)e.Axis.ScaleView.ViewMinimum;
+                int endPosition = (int)e.Axis.ScaleView.ViewMaximum;
+                double min = (double)e.ChartArea.AxisY.ScaleView.ViewMinimum;
+                double max = (double)e.ChartArea.AxisY.ScaleView.ViewMaximum;
+
+                for(int i = startPosition - 1; i < endPosition - 1; i++)
+                {
+                    if (i > 200) break;
+                    if (i < 0) i = 0;
+
+                    if(double.Parse(Params.CandleDict[Orderbook_ShortCode].high_price[i]) > max)
+                    {
+                        max = double.Parse(Params.CandleDict[Orderbook_ShortCode].high_price[i]) + 2;
+                    }
+                    if(double.Parse(Params.CandleDict[Orderbook_ShortCode].low_price[i]) < min)
+                    {
+                        min = double.Parse(Params.CandleDict[Orderbook_ShortCode].low_price[i]) - 2;
+                    }
+                }
+
+                Candle_Chart.ChartAreas[0].AxisY.Maximum = max;
+                Candle_Chart.ChartAreas[0].AxisY.Minimum = min;
+
+            }
+        }
+
+        public void CreateCandleChart()
+        {
+
+            Candle_Chart.Series["S_candle1"].Points.Clear();
+
+            Candle_Chart.ChartAreas[0].AxisY.Maximum = Params.CandleDict[Orderbook_ShortCode].high_price.Select(f => double.Parse(f)).ToList().Max();
+            Candle_Chart.ChartAreas[0].AxisY.Minimum = Params.CandleDict[Orderbook_ShortCode].low_price.Select(f => double.Parse(f)).ToList().Min();
+
+            for (int i=0; i < Params.CandleDict[Orderbook_ShortCode].code.Count; i++)
+            {
+                Candle_Chart.Series["S_candle1"].Points.AddXY(Params.CandleDict[Orderbook_ShortCode].date_time[i],
+                                                             double.Parse(Params.CandleDict[Orderbook_ShortCode].high_price[i]));
+                Candle_Chart.Series["S_candle1"].Points[i].YValues[1] = double.Parse(Params.CandleDict[Orderbook_ShortCode].low_price[i]);
+                Candle_Chart.Series["S_candle1"].Points[i].YValues[2] = double.Parse(Params.CandleDict[Orderbook_ShortCode].opening_price[i]);
+                Candle_Chart.Series["S_candle1"].Points[i].YValues[3] = double.Parse(Params.CandleDict[Orderbook_ShortCode].trade_price[i]);
+
+            }
+        }
 
 
         public void write_sys_log(String text, int is_Clear)
@@ -500,6 +635,7 @@ namespace CoinGo
             try
             {
                 Orderbook_ShortCode = UniverseDataGrid.Rows[e.RowIndex].Cells[0].Value.ToString();
+                CreateCandleChart();
             }
             catch (Exception err)
             {

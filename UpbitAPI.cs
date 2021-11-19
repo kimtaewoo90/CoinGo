@@ -115,7 +115,7 @@ namespace CoinGo
             return CallAPI_WithParam(url, new NameValueCollection { { "market", market } }, HttpMethod.Get);
         }
 
-        public string GetCandles_Minute(string market, UpbitMinuteCandleType unit, DateTime to = default(DateTime), int count = 1)
+        public string GetCandles_Minute(string market, UpbitMinuteCandleType unit, DateTime to = default(DateTime), int count = 200)
         {
             string url = "https://api.upbit.com/v1/candles/minutes/" + (int)unit;
             return CallAPI_WithParam(url, new NameValueCollection { { "market", market }, { "to", (to == default(DateTime)) ? DateTime2String(DateTime.Now) : DateTime2String(to) }, { "count", count.ToString() } }, HttpMethod.Get);

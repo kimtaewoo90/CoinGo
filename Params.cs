@@ -23,6 +23,11 @@ namespace CoinGo
         public static Dictionary<string, OrderbookState> CoinOrderbookDict = new Dictionary<string, OrderbookState>();
         public static List<string> MarketTickers = new List<string>();
 
+        // CandleData
+        public static Dictionary<string, CandleState> CandleDict = new Dictionary<string, CandleState>();
+
+
+
         public static Dictionary<string, List<double>> CoinTickData = new Dictionary<string, List<double>>();
     }
 }
