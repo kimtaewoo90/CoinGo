@@ -38,7 +38,15 @@ namespace CoinGo
                 total_trading_volume.Add(data_list[i].Split(new char[] { ',' })[9].Split(new char[] { ':' })[1]);
                 //unit.Add(data_list[i].Split(new char[] { ',' })[10].Split(new char[] { ':' })[1]);
             }
-            
+
+            code.Reverse();
+            date_time.Reverse();
+            opening_price.Reverse();
+            high_price.Reverse();
+            low_price.Reverse();
+            trade_price.Reverse();
+            total_trading_price.Reverse();
+            total_trading_volume.Reverse();
         }
 
         public bool IsSameTime(string time)

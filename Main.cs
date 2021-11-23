@@ -485,6 +485,16 @@ namespace CoinGo
                 candle = new CandleState(CandleData);
                 Params.CandleDict[ticker] = candle;
 
+                Params.CompareCandleTime[ticker] = Params.CandleDict[ticker].date_time[Params.CandleDict[ticker].date_time.Count-1];
+
+                Params.DifferencePrice[ticker] = new List<double>();
+                Params.UpperSide[ticker] = new List<double>();
+                Params.DownSide[ticker] = new List<double>();
+                Params.RSI_List[ticker] = new List<double>();
+
+                // RSi 계산
+                CalculateRSI(candle, ticker, isFirst:true);
+
                 Is_get_200_candle_data[ticker] = false;
             }
             else if(Is_get_200_candle_data[ticker] is false)
@@ -492,29 +502,46 @@ namespace CoinGo
                 CandleData = Params.upbit.GetCandles_Minute(ticker, UpbitAPI.UpbitMinuteCandleType._3, count:1);
                 util.delay(200);
 
-                // Update Candle Dictionary
                 var count = Params.CandleDict[ticker].code.Count;
-                Params.CandleDict[ticker].code.Add(CandleData.Split(new char[] { ',' })[0].Split(new char[] { ':' })[1]);
-                Params.CandleDict[ticker].date_time.Add(CandleData.Split(new char[] { ',' })[2].Split(new char[] { ':' })[1]);
-                Params.CandleDict[ticker].opening_price.Add(CandleData.Split(new char[] { ',' })[3].Split(new char[] { ':' })[1]);
 
-                // New High price > Old High price
-                if (double.Parse(CandleData.Split(new char[] { ',' })[4].Split(new char[] { ':' })[1]) >
-                    double.Parse(Params.CandleDict[ticker].high_price[count - 1]))
+                // 캔들 같은 봉
+                if (Params.CompareCandleTime[ticker] == CandleData.Split(new char[] { ',' })[2].Substring(24, 19))
+                {
+                    // New High price > Old High price
+                    if (double.Parse(CandleData.Split(new char[] { ',' })[4].Split(new char[] { ':' })[1]) >
+                        double.Parse(Params.CandleDict[ticker].high_price[count - 1]))
+                        Params.CandleDict[ticker].high_price[count-1] = (CandleData.Split(new char[] { ',' })[4].Split(new char[] { ':' })[1]);
+                    // New High price < Old High price
+                    else Params.CandleDict[ticker].high_price[count-1] = (Params.CandleDict[ticker].high_price[count - 1]);
+
+                    // New Low price < Old Low price
+                    if (double.Parse(CandleData.Split(new char[] { ',' })[5].Split(new char[] { ':' })[1]) <
+                        double.Parse(Params.CandleDict[ticker].low_price[count - 1]))
+                        Params.CandleDict[ticker].low_price[count-1] = (CandleData.Split(new char[] { ',' })[5].Split(new char[] { ':' })[1]);
+                    // New Low price > Old Low price
+                    else Params.CandleDict[ticker].low_price[count-1] = (Params.CandleDict[ticker].low_price[count - 1]);
+
+                    // Trade price
+                    Params.CandleDict[ticker].trade_price[count - 1] = CandleData.Split(new char[] { ',' })[6].Split(new char[] { ':' })[1];
+                    Params.CandleDict[ticker].total_trading_price[count-1] = (CandleData.Split(new char[] { ',' })[8].Split(new char[] { ':' })[1]);
+                    Params.CandleDict[ticker].total_trading_volume[count-1] = (CandleData.Split(new char[] { ',' })[9].Split(new char[] { ':' })[1]);
+                }
+
+                // 캔들 다른 봉
+                else
+                {
+                    Params.CompareCandleTime[ticker] = CandleData.Split(new char[] { ',' })[2].Substring(24, 19);
+
+                    Params.CandleDict[ticker].code.Add(CandleData.Split(new char[] { ',' })[0].Split(new char[] { ':' })[1]);
+                    Params.CandleDict[ticker].date_time.Add(CandleData.Split(new char[] { ',' })[2].Substring(24, 19));
+                    Params.CandleDict[ticker].opening_price.Add(CandleData.Split(new char[] { ',' })[3].Split(new char[] { ':' })[1]);
                     Params.CandleDict[ticker].high_price.Add(CandleData.Split(new char[] { ',' })[4].Split(new char[] { ':' })[1]);
-                // New High price < Old High price
-                else Params.CandleDict[ticker].high_price.Add(Params.CandleDict[ticker].high_price[count - 1]);
-
-                // New Low price < Old Low price
-                if (double.Parse(CandleData.Split(new char[] { ',' })[5].Split(new char[] { ':' })[1]) <
-                    double.Parse(Params.CandleDict[ticker].low_price[count - 1]))
                     Params.CandleDict[ticker].low_price.Add(CandleData.Split(new char[] { ',' })[5].Split(new char[] { ':' })[1]);
-                // New Low price > Old Low price
-                else Params.CandleDict[ticker].low_price.Add(Params.CandleDict[ticker].low_price[count - 1]);
-
-                Params.CandleDict[ticker].trade_price.Add(CandleData.Split(new char[] { ',' })[6].Split(new char[] { ':' })[1]);
-                Params.CandleDict[ticker].total_trading_price.Add(CandleData.Split(new char[] { ',' })[8].Split(new char[] { ':' })[1]);
-                Params.CandleDict[ticker].total_trading_volume.Add(CandleData.Split(new char[] { ',' })[9].Split(new char[] { ':' })[1]);
+                    Params.CandleDict[ticker].trade_price.Add(CandleData.Split(new char[] { ',' })[6].Split(new char[] { ':' })[1]);
+                    Params.CandleDict[ticker].total_trading_price.Add(CandleData.Split(new char[] { ',' })[8].Split(new char[] { ':' })[1]);
+                    Params.CandleDict[ticker].total_trading_volume.Add(CandleData.Split(new char[] { ',' })[9].Split(new char[] { ':' })[1]);
+                }
+            
 
                 // Real Time Candle Chart
                 if(ticker == Orderbook_ShortCode)
@@ -528,6 +555,38 @@ namespace CoinGo
                    
                // }
             }
+        }
+
+        public void CalculateRSI(CandleState candle, string ticker, bool isFirst)
+        {
+            // RSI 계산
+            if (isFirst is true)
+            {
+                for (int i = 1; i < candle.trade_price.Count; i++)
+                {
+                    Params.DifferencePrice[ticker].Add((double.Parse(candle.trade_price[i]) - double.Parse(candle.trade_price[i - 1])));
+                }
+
+                Params.UpperSide[ticker] = Params.DifferencePrice[ticker];
+                Params.DownSide[ticker] = Params.DifferencePrice[ticker];
+
+                //Params.UpperSide[ticker].Where(x => x < 0).All(x => x=0) ;
+                Params.UpperSide[ticker].ForEach(x => { if (x < 0) { x = 0; } });
+                Params.DownSide[ticker].ForEach(x => { if (x > 0) { x = 0; } });
+
+                var au = Params.UpperSide[ticker].Average();
+                var ad = Params.DownSide[ticker].Average();
+
+                var rs = au / ad;
+                var rsi = rs / (1 + rs) * 100;
+                Params.RSI_List[ticker].Add(rsi);
+
+                write_sys_log($"{ticker} : {rsi.ToString()}", 0);
+            }
+            else if(isFirst is false)
+            {
+
+            } 
         }
 
         public void ChartAxisChanged(object sender, ViewEventArgs e)

@@ -25,7 +25,13 @@ namespace CoinGo
 
         // CandleData
         public static Dictionary<string, CandleState> CandleDict = new Dictionary<string, CandleState>();
+        public static Dictionary<string, string> CompareCandleTime = new Dictionary<string, string>();
 
+        // RSI
+        public static Dictionary<string, List<double>> DifferencePrice = new Dictionary<string, List<double>>();
+        public static Dictionary<string, List<double>> UpperSide = new Dictionary<string, List<double>>();
+        public static Dictionary<string, List<double>> DownSide = new Dictionary<string, List<double>>();
+        public static Dictionary<string, List<double>> RSI_List = new Dictionary<string, List<double>>();
 
 
         public static Dictionary<string, List<double>> CoinTickData = new Dictionary<string, List<double>>();
