@@ -16,6 +16,12 @@ namespace CoinGo
 
         public static UpbitAPI upbit = new UpbitAPI(AccessKey, SecretKey);
 
+        // Display functions
+        public static bool IsDisplayPosition { get; set; } = false;
+        public static bool IsDisplayOrderbook { get; set; } = false;
+        public static bool IsDisplayChart { get; set; } = false;
+
+
         // Coin
         public static Dictionary<string, CoinState> CoinInfoDict = new Dictionary<string, CoinState>();
         public static List<CoinState> CoinInfoList = new List<CoinState>();
@@ -33,6 +39,16 @@ namespace CoinGo
         public static Dictionary<string, List<double>> DownSide = new Dictionary<string, List<double>>();
         public static Dictionary<string, List<double>> RSI_List = new Dictionary<string, List<double>>();
 
+        // Position
+        public static double TotalAsset { get; set; }
+        public static double CoinAsset { get; set; }
+        public static double CashAsset { get; set; }
+        public static double PnL { get; set; }
+        public static double PnLChange { get; set; }
+
+        // Strategy1 RSI and BB
+        public static Dictionary<string, bool> Signal_1 = new Dictionary<string, bool>();
+        public static Dictionary<string, bool> Signal_2 = new Dictionary<string, bool>();
 
         public static Dictionary<string, List<double>> CoinTickData = new Dictionary<string, List<double>>();
     }

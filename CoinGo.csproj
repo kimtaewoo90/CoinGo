@@ -89,6 +89,7 @@
     <Compile Include="PositionState.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Strategy1_RSI_BB.cs" />
     <Compile Include="UpbitAPI.cs" />
     <Compile Include="UpbitWebSocket.cs" />
     <Compile Include="Utils.cs" />

@@ -126,7 +126,8 @@ namespace CoinGo
                 OrderbookState state = new OrderbookState(res);
                 Params.CoinOrderbookDict[code] = state;
 
-                DisplayOrderbook(res);
+                if (Orderbook_check.Checked)
+                    DisplayOrderbook(res);
 
             }
 
@@ -143,7 +144,7 @@ namespace CoinGo
             var code = res["code"].ToString();
             var curPrice = double.Parse(res["trade_price"].ToString());
             var openingPrice = double.Parse(res["opening_price"].ToString());
-            var change = Math.Round((curPrice / openingPrice) - 1, 2);
+            var change = ((curPrice / openingPrice) - 1) * 100;
             var volume = Math.Round(double.Parse(res["acc_trade_volume"].ToString()), 2);
 
             if (UniverseDataGrid.InvokeRequired)
@@ -162,16 +163,16 @@ namespace CoinGo
                             {
                                 row.Cells["ticker"].Value = code;
                                 row.Cells["curPrice"].Value = String.Format("{0:0,0}", curPrice);
-                                row.Cells["change"].Value = String.Format("{0:0,0}", change);
+                                row.Cells["change"].Value = String.Format("{0:0.#}", change);
                                 row.Cells["volume"].Value = String.Format("{0:0,0}", volume);
                                 return;
                             }
                         }
 
-                        UniverseDataGrid.Rows.Add(code, String.Format("{0:0,0}", curPrice), String.Format("{0:0,0}", change), String.Format("{0:0,0}", volume));
+                        UniverseDataGrid.Rows.Add(code, String.Format("{0:0,0}", curPrice), String.Format("{0:0.#}", change), String.Format("{0:0,0}", volume));
                     }
 
-                    else UniverseDataGrid.Rows.Add(code, String.Format("{0:0,0}", curPrice), String.Format("{0:0,0}", change), String.Format("{0:0,0}", volume));
+                    else UniverseDataGrid.Rows.Add(code, String.Format("{0:0,0}", curPrice), String.Format("{0:0.#}", change), String.Format("{0:0,0}", volume));
 
                 }));
             }
@@ -190,16 +191,16 @@ namespace CoinGo
                         {
                             row.Cells["ticker"].Value = code;
                             row.Cells["curPrice"].Value = String.Format("{0:0,0}", curPrice);
-                            row.Cells["change"].Value = String.Format("{0:0,0}", change);
+                            row.Cells["change"].Value = String.Format("{0:0.#}", change);
                             row.Cells["volume"].Value = String.Format("{0:0,0}", volume);
                             return;
                         }
                     }
 
-                    UniverseDataGrid.Rows.Add(code, String.Format("{0:0,0}", curPrice), String.Format("{0:0,0}", change), String.Format("{0:0,0}", volume));
+                    UniverseDataGrid.Rows.Add(code, String.Format("{0:0,0}", curPrice), String.Format("{0:0.#}", change), String.Format("{0:0,0}", volume));
                 }
 
-                else UniverseDataGrid.Rows.Add(code, String.Format("{0:0,0}", curPrice), String.Format("{0:0,0}", change), String.Format("{0:0,0}", volume));
+                else UniverseDataGrid.Rows.Add(code, String.Format("{0:0,0}", curPrice), String.Format("{0:0.#}", change), String.Format("{0:0,0}", volume));
             }
         }
 
@@ -215,65 +216,65 @@ namespace CoinGo
                     {
                         Orderbook_Code.Text = code;
 
-                        OrderbookDataGrid.Rows[0].Cells[1].Value = orderbook["orderbook_units"][9]["ask_price"];
-                        OrderbookDataGrid.Rows[0].Cells[0].Value = orderbook["orderbook_units"][9]["ask_size"];
+                        OrderbookDataGrid.Rows[0].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][9]["ask_price"]) ;
+                        OrderbookDataGrid.Rows[0].Cells[0].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][9]["ask_size"]);
 
-                        OrderbookDataGrid.Rows[1].Cells[1].Value = orderbook["orderbook_units"][8]["ask_price"];
-                        OrderbookDataGrid.Rows[1].Cells[0].Value = orderbook["orderbook_units"][8]["ask_size"];
+                        OrderbookDataGrid.Rows[1].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][8]["ask_price"]);
+                        OrderbookDataGrid.Rows[1].Cells[0].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][8]["ask_size"]);
 
-                        OrderbookDataGrid.Rows[2].Cells[1].Value = orderbook["orderbook_units"][7]["ask_price"];
-                        OrderbookDataGrid.Rows[2].Cells[0].Value = orderbook["orderbook_units"][7]["ask_size"];
+                        OrderbookDataGrid.Rows[2].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][7]["ask_price"]);
+                        OrderbookDataGrid.Rows[2].Cells[0].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][7]["ask_size"]);
 
-                        OrderbookDataGrid.Rows[3].Cells[1].Value = orderbook["orderbook_units"][6]["ask_price"];
-                        OrderbookDataGrid.Rows[3].Cells[0].Value = orderbook["orderbook_units"][6]["ask_size"];
+                        OrderbookDataGrid.Rows[3].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][6]["ask_price"]);
+                        OrderbookDataGrid.Rows[3].Cells[0].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][6]["ask_size"]);
 
-                        OrderbookDataGrid.Rows[4].Cells[1].Value = orderbook["orderbook_units"][5]["ask_price"];
-                        OrderbookDataGrid.Rows[4].Cells[0].Value = orderbook["orderbook_units"][5]["ask_size"];
+                        OrderbookDataGrid.Rows[4].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][5]["ask_price"]);
+                        OrderbookDataGrid.Rows[4].Cells[0].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][5]["ask_size"]);
 
-                        OrderbookDataGrid.Rows[5].Cells[1].Value = orderbook["orderbook_units"][4]["ask_price"];
-                        OrderbookDataGrid.Rows[5].Cells[0].Value = orderbook["orderbook_units"][4]["ask_size"];
+                        OrderbookDataGrid.Rows[5].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][4]["ask_price"]);
+                        OrderbookDataGrid.Rows[5].Cells[0].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][4]["ask_size"]);
 
-                        OrderbookDataGrid.Rows[6].Cells[1].Value = orderbook["orderbook_units"][3]["ask_price"];
-                        OrderbookDataGrid.Rows[6].Cells[0].Value = orderbook["orderbook_units"][3]["ask_size"];
+                        OrderbookDataGrid.Rows[6].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][3]["ask_price"]);
+                        OrderbookDataGrid.Rows[6].Cells[0].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][3]["ask_size"]);
 
-                        OrderbookDataGrid.Rows[7].Cells[1].Value = orderbook["orderbook_units"][2]["ask_price"];
-                        OrderbookDataGrid.Rows[7].Cells[0].Value = orderbook["orderbook_units"][2]["ask_size"];
+                        OrderbookDataGrid.Rows[7].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][2]["ask_price"]);
+                        OrderbookDataGrid.Rows[7].Cells[0].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][2]["ask_size"]);
 
-                        OrderbookDataGrid.Rows[8].Cells[1].Value = orderbook["orderbook_units"][1]["ask_price"];
-                        OrderbookDataGrid.Rows[8].Cells[0].Value = orderbook["orderbook_units"][1]["ask_size"];
+                        OrderbookDataGrid.Rows[8].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][1]["ask_price"]);
+                        OrderbookDataGrid.Rows[8].Cells[0].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][1]["ask_size"]);
 
-                        OrderbookDataGrid.Rows[9].Cells[1].Value = orderbook["orderbook_units"][0]["ask_price"];
-                        OrderbookDataGrid.Rows[9].Cells[0].Value = orderbook["orderbook_units"][0]["ask_size"];
+                        OrderbookDataGrid.Rows[9].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][0]["ask_price"]);
+                        OrderbookDataGrid.Rows[9].Cells[0].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][0]["ask_size"]);
 
-                        OrderbookDataGrid.Rows[10].Cells[1].Value = orderbook["orderbook_units"][0]["bid_price"];
-                        OrderbookDataGrid.Rows[10].Cells[2].Value = orderbook["orderbook_units"][0]["bid_size"];
+                        OrderbookDataGrid.Rows[10].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][0]["bid_price"]);
+                        OrderbookDataGrid.Rows[10].Cells[2].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][0]["bid_size"]);
 
-                        OrderbookDataGrid.Rows[11].Cells[1].Value = orderbook["orderbook_units"][1]["bid_price"];
-                        OrderbookDataGrid.Rows[11].Cells[2].Value = orderbook["orderbook_units"][1]["bid_size"];
+                        OrderbookDataGrid.Rows[11].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][1]["bid_price"]);
+                        OrderbookDataGrid.Rows[11].Cells[2].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][1]["bid_size"]);
 
-                        OrderbookDataGrid.Rows[12].Cells[1].Value = orderbook["orderbook_units"][2]["bid_price"];
-                        OrderbookDataGrid.Rows[12].Cells[2].Value = orderbook["orderbook_units"][2]["bid_size"];
+                        OrderbookDataGrid.Rows[12].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][2]["bid_price"]);
+                        OrderbookDataGrid.Rows[12].Cells[2].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][2]["bid_size"]);
 
-                        OrderbookDataGrid.Rows[13].Cells[1].Value = orderbook["orderbook_units"][3]["bid_price"];
-                        OrderbookDataGrid.Rows[13].Cells[2].Value = orderbook["orderbook_units"][3]["bid_size"];
+                        OrderbookDataGrid.Rows[13].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][3]["bid_price"]);
+                        OrderbookDataGrid.Rows[13].Cells[2].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][3]["bid_size"]);
 
-                        OrderbookDataGrid.Rows[14].Cells[1].Value = orderbook["orderbook_units"][4]["bid_price"];
-                        OrderbookDataGrid.Rows[14].Cells[2].Value = orderbook["orderbook_units"][4]["bid_size"];
+                        OrderbookDataGrid.Rows[14].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][4]["bid_price"]);
+                        OrderbookDataGrid.Rows[14].Cells[2].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][4]["bid_size"]);
 
-                        OrderbookDataGrid.Rows[15].Cells[1].Value = orderbook["orderbook_units"][5]["bid_price"];
-                        OrderbookDataGrid.Rows[15].Cells[2].Value = orderbook["orderbook_units"][5]["bid_size"];
+                        OrderbookDataGrid.Rows[15].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][5]["bid_price"]);
+                        OrderbookDataGrid.Rows[15].Cells[2].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][5]["bid_size"]);
 
-                        OrderbookDataGrid.Rows[16].Cells[1].Value = orderbook["orderbook_units"][6]["bid_price"];
-                        OrderbookDataGrid.Rows[16].Cells[2].Value = orderbook["orderbook_units"][6]["bid_size"];
+                        OrderbookDataGrid.Rows[16].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][6]["bid_price"]);
+                        OrderbookDataGrid.Rows[16].Cells[2].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][6]["bid_size"]);
 
-                        OrderbookDataGrid.Rows[17].Cells[1].Value = orderbook["orderbook_units"][7]["bid_price"];
-                        OrderbookDataGrid.Rows[17].Cells[2].Value = orderbook["orderbook_units"][7]["bid_size"];
+                        OrderbookDataGrid.Rows[17].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][7]["bid_price"]);
+                        OrderbookDataGrid.Rows[17].Cells[2].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][7]["bid_size"]);
 
-                        OrderbookDataGrid.Rows[18].Cells[1].Value = orderbook["orderbook_units"][8]["bid_price"];
-                        OrderbookDataGrid.Rows[18].Cells[2].Value = orderbook["orderbook_units"][8]["bid_size"];
+                        OrderbookDataGrid.Rows[18].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][8]["bid_price"]);
+                        OrderbookDataGrid.Rows[18].Cells[2].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][8]["bid_size"]);
 
-                        OrderbookDataGrid.Rows[19].Cells[1].Value = orderbook["orderbook_units"][9]["bid_price"];
-                        OrderbookDataGrid.Rows[19].Cells[2].Value = orderbook["orderbook_units"][9]["bid_size"];
+                        OrderbookDataGrid.Rows[19].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][9]["bid_price"]);
+                        OrderbookDataGrid.Rows[19].Cells[2].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][9]["bid_size"]);
 
                     }));
                 }
@@ -281,65 +282,65 @@ namespace CoinGo
                 {
                     Orderbook_Code.Text = code;
 
-                    OrderbookDataGrid.Rows[0].Cells[1].Value = orderbook["orderbook_units"][9]["ask_price"];
-                    OrderbookDataGrid.Rows[0].Cells[0].Value = orderbook["orderbook_units"][9]["ask_size"];
+                    OrderbookDataGrid.Rows[0].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][9]["ask_price"]);
+                    OrderbookDataGrid.Rows[0].Cells[0].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][9]["ask_size"]);
 
-                    OrderbookDataGrid.Rows[1].Cells[1].Value = orderbook["orderbook_units"][8]["ask_price"];
-                    OrderbookDataGrid.Rows[1].Cells[0].Value = orderbook["orderbook_units"][8]["ask_size"];
+                    OrderbookDataGrid.Rows[1].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][8]["ask_price"]);
+                    OrderbookDataGrid.Rows[1].Cells[0].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][8]["ask_size"]);
 
-                    OrderbookDataGrid.Rows[2].Cells[1].Value = orderbook["orderbook_units"][7]["ask_price"];
-                    OrderbookDataGrid.Rows[2].Cells[0].Value = orderbook["orderbook_units"][7]["ask_size"];
+                    OrderbookDataGrid.Rows[2].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][7]["ask_price"]);
+                    OrderbookDataGrid.Rows[2].Cells[0].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][7]["ask_size"]);
 
-                    OrderbookDataGrid.Rows[3].Cells[1].Value = orderbook["orderbook_units"][6]["ask_price"];
-                    OrderbookDataGrid.Rows[3].Cells[0].Value = orderbook["orderbook_units"][6]["ask_size"];
+                    OrderbookDataGrid.Rows[3].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][6]["ask_price"]);
+                    OrderbookDataGrid.Rows[3].Cells[0].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][6]["ask_size"]);
 
-                    OrderbookDataGrid.Rows[4].Cells[1].Value = orderbook["orderbook_units"][5]["ask_price"];
-                    OrderbookDataGrid.Rows[4].Cells[0].Value = orderbook["orderbook_units"][5]["ask_size"];
+                    OrderbookDataGrid.Rows[4].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][5]["ask_price"]);
+                    OrderbookDataGrid.Rows[4].Cells[0].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][5]["ask_size"]);
 
-                    OrderbookDataGrid.Rows[5].Cells[1].Value = orderbook["orderbook_units"][4]["ask_price"];
-                    OrderbookDataGrid.Rows[5].Cells[0].Value = orderbook["orderbook_units"][4]["ask_size"];
+                    OrderbookDataGrid.Rows[5].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][4]["ask_price"]);
+                    OrderbookDataGrid.Rows[5].Cells[0].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][4]["ask_size"]);
 
-                    OrderbookDataGrid.Rows[6].Cells[1].Value = orderbook["orderbook_units"][3]["ask_price"];
-                    OrderbookDataGrid.Rows[6].Cells[0].Value = orderbook["orderbook_units"][3]["ask_size"];
+                    OrderbookDataGrid.Rows[6].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][3]["ask_price"]);
+                    OrderbookDataGrid.Rows[6].Cells[0].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][3]["ask_size"]);
 
-                    OrderbookDataGrid.Rows[7].Cells[1].Value = orderbook["orderbook_units"][2]["ask_price"];
-                    OrderbookDataGrid.Rows[7].Cells[0].Value = orderbook["orderbook_units"][2]["ask_size"];
+                    OrderbookDataGrid.Rows[7].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][2]["ask_price"]);
+                    OrderbookDataGrid.Rows[7].Cells[0].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][2]["ask_size"]);
 
-                    OrderbookDataGrid.Rows[8].Cells[1].Value = orderbook["orderbook_units"][1]["ask_price"];
-                    OrderbookDataGrid.Rows[8].Cells[0].Value = orderbook["orderbook_units"][1]["ask_size"];
+                    OrderbookDataGrid.Rows[8].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][1]["ask_price"]);
+                    OrderbookDataGrid.Rows[8].Cells[0].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][1]["ask_size"]);
 
-                    OrderbookDataGrid.Rows[9].Cells[1].Value = orderbook["orderbook_units"][0]["ask_price"];
-                    OrderbookDataGrid.Rows[9].Cells[0].Value = orderbook["orderbook_units"][0]["ask_size"];
+                    OrderbookDataGrid.Rows[9].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][0]["ask_price"]);
+                    OrderbookDataGrid.Rows[9].Cells[0].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][0]["ask_size"]);
 
-                    OrderbookDataGrid.Rows[10].Cells[1].Value = orderbook["orderbook_units"][0]["bid_price"];
-                    OrderbookDataGrid.Rows[10].Cells[2].Value = orderbook["orderbook_units"][0]["bid_size"];
+                    OrderbookDataGrid.Rows[10].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][0]["bid_price"]);
+                    OrderbookDataGrid.Rows[10].Cells[2].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][0]["bid_size"]);
 
-                    OrderbookDataGrid.Rows[11].Cells[1].Value = orderbook["orderbook_units"][1]["bid_price"];
-                    OrderbookDataGrid.Rows[11].Cells[2].Value = orderbook["orderbook_units"][1]["bid_size"];
+                    OrderbookDataGrid.Rows[11].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][1]["bid_price"]);
+                    OrderbookDataGrid.Rows[11].Cells[2].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][1]["bid_size"]);
 
-                    OrderbookDataGrid.Rows[12].Cells[1].Value = orderbook["orderbook_units"][2]["bid_price"];
-                    OrderbookDataGrid.Rows[12].Cells[2].Value = orderbook["orderbook_units"][2]["bid_size"];
+                    OrderbookDataGrid.Rows[12].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][2]["bid_price"]);
+                    OrderbookDataGrid.Rows[12].Cells[2].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][2]["bid_size"]);
 
-                    OrderbookDataGrid.Rows[13].Cells[1].Value = orderbook["orderbook_units"][3]["bid_price"];
-                    OrderbookDataGrid.Rows[13].Cells[2].Value = orderbook["orderbook_units"][3]["bid_size"];
+                    OrderbookDataGrid.Rows[13].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][3]["bid_price"]);
+                    OrderbookDataGrid.Rows[13].Cells[2].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][3]["bid_size"]);
 
-                    OrderbookDataGrid.Rows[14].Cells[1].Value = orderbook["orderbook_units"][4]["bid_price"];
-                    OrderbookDataGrid.Rows[14].Cells[2].Value = orderbook["orderbook_units"][4]["bid_size"];
+                    OrderbookDataGrid.Rows[14].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][4]["bid_price"]);
+                    OrderbookDataGrid.Rows[14].Cells[2].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][4]["bid_size"]);
 
-                    OrderbookDataGrid.Rows[15].Cells[1].Value = orderbook["orderbook_units"][5]["bid_price"];
-                    OrderbookDataGrid.Rows[15].Cells[2].Value = orderbook["orderbook_units"][5]["bid_size"];
+                    OrderbookDataGrid.Rows[15].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][5]["bid_price"]);
+                    OrderbookDataGrid.Rows[15].Cells[2].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][5]["bid_size"]);
 
-                    OrderbookDataGrid.Rows[16].Cells[1].Value = orderbook["orderbook_units"][6]["bid_price"];
-                    OrderbookDataGrid.Rows[16].Cells[2].Value = orderbook["orderbook_units"][6]["bid_size"];
+                    OrderbookDataGrid.Rows[16].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][6]["bid_price"]);
+                    OrderbookDataGrid.Rows[16].Cells[2].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][6]["bid_size"]);
 
-                    OrderbookDataGrid.Rows[17].Cells[1].Value = orderbook["orderbook_units"][7]["bid_price"];
-                    OrderbookDataGrid.Rows[17].Cells[2].Value = orderbook["orderbook_units"][7]["bid_size"];
+                    OrderbookDataGrid.Rows[17].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][7]["bid_price"]);
+                    OrderbookDataGrid.Rows[17].Cells[2].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][7]["bid_size"]);
 
-                    OrderbookDataGrid.Rows[18].Cells[1].Value = orderbook["orderbook_units"][8]["bid_price"];
-                    OrderbookDataGrid.Rows[18].Cells[2].Value = orderbook["orderbook_units"][8]["bid_size"];
+                    OrderbookDataGrid.Rows[18].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][8]["bid_price"]);
+                    OrderbookDataGrid.Rows[18].Cells[2].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][8]["bid_size"]);
 
-                    OrderbookDataGrid.Rows[19].Cells[1].Value = orderbook["orderbook_units"][9]["bid_price"];
-                    OrderbookDataGrid.Rows[19].Cells[2].Value = orderbook["orderbook_units"][9]["bid_size"];
+                    OrderbookDataGrid.Rows[19].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][9]["bid_price"]);
+                    OrderbookDataGrid.Rows[19].Cells[2].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][9]["bid_size"]);
 
                 }
             }
@@ -365,20 +366,30 @@ namespace CoinGo
 
                                 if (row.Cells["code"].Value.ToString() == currency || row.Cells["code"].Value == null)
                                 {
-                                    row.Cells["code"].Value = currency;
-                                    row.Cells["Quantity"].Value = balance;
-                                    row.Cells["buyPrice"].Value = buy_price;
-                                    row.Cells["curPrice_position"].Value = cur_price;
+                                    row.Cells["code"].Value = String.Format("{0:0,0}", currency);
+                                    row.Cells["Quantity"].Value = String.Format("{0:0,0}", balance);
+                                    row.Cells["buyPrice"].Value = String.Format("{0:0,0}", buy_price);
+                                    row.Cells["curPrice_position"].Value = String.Format("{0:0,0}", cur_price);
                                     row.Cells["rate"].Value = rate;
-                                    row.Cells["tradingPnL"].Value = pnl;
+                                    row.Cells["tradingPnL"].Value = String.Format("{0:0,0}", pnl);
                                     return;
                                 }
                             }
 
-                            positionDataGrid.Rows.Add(currency, balance, buy_price, cur_price, rate, pnl);
+                            positionDataGrid.Rows.Add(String.Format("{0:0,0}", currency), 
+                                                      String.Format("{0:0,0}", balance),
+                                                      String.Format("{0:0,0}", buy_price),
+                                                      String.Format("{0:0,0}", cur_price), 
+                                                      rate,
+                                                      String.Format("{0:0,0}", pnl));
                         }
 
-                        else positionDataGrid.Rows.Add(currency, balance, buy_price, cur_price, rate, pnl);
+                        else positionDataGrid.Rows.Add(String.Format("{0:0,0}", currency),
+                                                        String.Format("{0:0,0}", balance),
+                                                        String.Format("{0:0,0}", buy_price),
+                                                        String.Format("{0:0,0}", cur_price), 
+                                                        rate,
+                                                        String.Format("{0:0,0}", pnl));
 
                     }));
                 }));
@@ -396,20 +407,30 @@ namespace CoinGo
 
                         if (row.Cells["code"].Value.ToString() == currency || row.Cells["code"].Value == null)
                         {
-                            row.Cells["code"].Value = currency;
-                            row.Cells["Quantity"].Value = balance;
-                            row.Cells["buyPrice"].Value = buy_price;
-                            row.Cells["curPrice_position"].Value = cur_price;
+                            row.Cells["code"].Value = String.Format("{0:0,0}", currency);
+                            row.Cells["Quantity"].Value = String.Format("{0:0,0}", balance);
+                            row.Cells["buyPrice"].Value = String.Format("{0:0,0}", buy_price);
+                            row.Cells["curPrice_position"].Value = String.Format("{0:0,0}", cur_price);
                             row.Cells["rate"].Value = rate;
-                            row.Cells["tradingPnL"].Value = pnl;
+                            row.Cells["tradingPnL"].Value = String.Format("{0:0,0}", pnl);
                             return;
                         }
                     }
 
-                    positionDataGrid.Rows.Add(currency, balance, buy_price, cur_price, rate, pnl);
+                    positionDataGrid.Rows.Add(String.Format("{0:0,0}", currency),
+                                              String.Format("{0:0,0}", balance),
+                                              String.Format("{0:0,0}", buy_price),
+                                              String.Format("{0:0,0}", cur_price),
+                                              rate,
+                                              String.Format("{0:0,0}", pnl));
                 }
 
-                else positionDataGrid.Rows.Add(currency, balance, buy_price, cur_price, rate, pnl);
+                else positionDataGrid.Rows.Add(String.Format("{0:0,0}", currency),
+                                                String.Format("{0:0,0}", balance),
+                                                String.Format("{0:0,0}", buy_price),
+                                                String.Format("{0:0,0}", cur_price),
+                                                rate,
+                                                String.Format("{0:0,0}", pnl));
             }
         }
 
@@ -427,6 +448,14 @@ namespace CoinGo
                 List<JObject> Result = Params.upbit.GetAccount();
                 util.delay(200);
 
+                // Initialize Position
+                Params.TotalAsset = 0.0;
+                Params.CoinAsset = 0.0;
+                Params.CashAsset = 0.0;
+                Params.PnL = 0.0;
+                Params.PnLChange = 0.0;
+                var cash = 0.0;
+
                 // Display Position
                 for (int i = 0; i < Result.Count; i++)
                 {
@@ -435,6 +464,8 @@ namespace CoinGo
                     var locked = Result[i].GetValue("locked").ToString().Trim();
                     var avg_buy_price = Result[i].GetValue("avg_buy_price").ToString().Trim();
                     var cur_price = "0.0";
+
+                    if (currency == "KRW") cash = double.Parse(balance);
 
                     //string[] codes = currency.Split('-');
                     string code = $"KRW-{currency}";
@@ -452,8 +483,35 @@ namespace CoinGo
                     PositionState state = new PositionState(currency.ToString(), balance.ToString(), locked.ToString(), avg_buy_price.ToString(), unit_currency.ToString());
                     Params.CoinPositionDict[currency] = state;
 
+                    Params.TotalAsset = Params.TotalAsset + double.Parse(balance) * double.Parse(cur_price);
+                    Params.CoinAsset = Params.CoinAsset + double.Parse(balance) * double.Parse(cur_price);
+                    Params.PnL = Params.PnL + (double.Parse(cur_price) - double.Parse(avg_buy_price)) * double.Parse(balance);
+
                     DisplayTargetCoins(currency, balance, avg_buy_price, cur_price, rate, tradingPnL);
-                    //write_sys_log("Displayed Coin position", 0);
+                }
+
+                Params.TotalAsset = Params.TotalAsset + cash;
+                Params.CashAsset = cash;
+                
+                // Display Total Position display
+                if (this.InvokeRequired)
+                {
+                    this.Invoke(new MethodInvoker(delegate ()
+                    {
+                        Total_Asset.Text = String.Format("{0:0,0}", Math.Round(Params.TotalAsset));
+                        Cash_Asset.Text = String.Format("{0:0,0}", Params.CashAsset);
+                        Coin_Asset.Text = String.Format("{0:0,0}", Params.CoinAsset);
+                        PnL.Text = String.Format("{0:0,0}", Params.PnL);
+                        PnL_Change.Text = Params.PnLChange.ToString();
+                    }));
+                }
+                else
+                {
+                    Total_Asset.Text = String.Format("{0:0,0}", Params.TotalAsset);
+                    Cash_Asset.Text = String.Format("{0:0,0}", Params.CashAsset);
+                    Coin_Asset.Text = String.Format("{0:0,0}", Params.CoinAsset);
+                    PnL.Text = String.Format("{0:0,0}", Params.PnL);
+                    PnL_Change.Text = Params.PnLChange.ToString();
                 }
 
             }
@@ -478,6 +536,16 @@ namespace CoinGo
         public void UpdateSignals(JObject res)
         {
             var data = res;
+            var ticker = data["code"].ToString();
+            // Strategy1
+            Strategy1_RSI_BB strategy1 = new Strategy1_RSI_BB(ticker);
+            var signal = strategy1.Is_Signal();
+
+            if(signal == true)
+            {
+                // 매수
+                write_sys_log($"{ticker} signal is true", 0);
+            }
         }
 
         public void GetCandleData(string ticker)
@@ -501,14 +569,22 @@ namespace CoinGo
                 Params.RSI_List[ticker] = new List<double>();
 
                 // RSi 계산
-                Params.RSI_List[ticker].Add(CalculateRSI(candle, ticker, isFirst: true));
+                Params.RSI_List[ticker].Add(CalculateRSI(candle, ticker, isFirst: true, IsSame:true));
 
                 Is_get_200_candle_data[ticker] = false;
             }
             else if (Is_get_200_candle_data[ticker] is false)
             {
-                CandleData = Params.upbit.GetCandles_Minute(ticker, UpbitAPI.UpbitMinuteCandleType._3, count: 1);
-                util.delay(200);
+                try
+                {
+                    CandleData = Params.upbit.GetCandles_Minute(ticker, UpbitAPI.UpbitMinuteCandleType._3, count: 1);
+                    util.delay(200);
+                }
+                catch(Exception e)
+                {
+                    MessageBox.Show(e.ToString());
+                }
+
 
                 var count = Params.CandleDict[ticker].code.Count;
 
@@ -535,9 +611,9 @@ namespace CoinGo
                     Params.CandleDict[ticker].total_trading_volume[count - 1] = (CandleData.Split(new char[] { ',' })[9].Split(new char[] { ':' })[1]);
 
                     // RSI 업데이트
-                    Params.RSI_List[ticker][Params.RSI_List[ticker].Count - 1] = CalculateRSI(Params.CandleDict[ticker], ticker, true);
+                    Params.RSI_List[ticker][Params.RSI_List[ticker].Count - 1] = CalculateRSI(Params.CandleDict[ticker], ticker, isFirst:false, IsSame:true);
 
-                    if (ticker == "KRW-BTC") write_sys_log($"Same candle : {Params.RSI_List[ticker][Params.RSI_List[ticker].Count-1]}", 0);
+                    //if (ticker == "KRW-BTC") write_sys_log($"Same candle : {Params.RSI_List[ticker][Params.RSI_List[ticker].Count-1]}", 0);
                 }
 
                 // 캔들 다른 봉
@@ -554,9 +630,9 @@ namespace CoinGo
                     Params.CandleDict[ticker].total_trading_price.Add(CandleData.Split(new char[] { ',' })[8].Split(new char[] { ':' })[1]);
                     Params.CandleDict[ticker].total_trading_volume.Add(CandleData.Split(new char[] { ',' })[9].Split(new char[] { ':' })[1]);
 
-                    Params.RSI_List[ticker].Add(CalculateRSI(Params.CandleDict[ticker], ticker, true));
+                    Params.RSI_List[ticker].Add(CalculateRSI(Params.CandleDict[ticker], ticker, isFirst:false, IsSame:false));
 
-                    if (ticker == "KRW-BTC") write_sys_log($"other candle : {Params.RSI_List[ticker][Params.RSI_List[ticker].Count -1]}", 0);
+                    //if (ticker == "KRW-BTC") write_sys_log($"other candle : {Params.RSI_List[ticker][Params.RSI_List[ticker].Count -1]}", 0);
 
                 }
 
@@ -575,36 +651,73 @@ namespace CoinGo
             }
         }
 
-        public double CalculateRSI(CandleState candle, string ticker, bool isFirst)
+        public double CalculateRSI(CandleState candle, string ticker, bool isFirst, bool IsSame)
         {
             // RSI 계산
 
-            for (int i = 1; i < candle.trade_price.Count; i++)
+            // Update DifferentPrice & UpperSide & DownSide
+            if (IsSame && isFirst == false)
             {
-                Params.DifferencePrice[ticker].Add((double.Parse(candle.trade_price[i]) - double.Parse(candle.trade_price[i - 1])));
+                Params.DifferencePrice[ticker][Params.DifferencePrice[ticker].Count - 1] =
+                    double.Parse(candle.trade_price[candle.trade_price.Count - 1]) - double.Parse(candle.trade_price[candle.trade_price.Count - 2]);
+
+                if(Params.DifferencePrice[ticker][Params.DifferencePrice[ticker].Count - 1] > 0)
+                {
+                    Params.UpperSide[ticker][Params.UpperSide[ticker].Count - 1] = Params.DifferencePrice[ticker][Params.DifferencePrice[ticker].Count - 1];
+                    Params.DownSide[ticker][Params.DownSide[ticker].Count - 1] = 0;
+                }
+                else if (Params.DifferencePrice[ticker][Params.DifferencePrice[ticker].Count - 1] < 0)
+                {
+                    Params.UpperSide[ticker][Params.UpperSide[ticker].Count - 1] = 0;
+                    Params.DownSide[ticker][Params.DownSide[ticker].Count - 1] = Params.DifferencePrice[ticker][Params.DifferencePrice[ticker].Count - 1];
+                }
             }
 
-            //Params.UpperSide[ticker] = Params.DifferencePrice[ticker];
-            //Params.DownSide[ticker] = Params.DifferencePrice[ticker];
-
-            //Params.UpperSide[ticker].Where(x => x < 0).All(x => x=0) ;
-            // TODO: 
-            //Params.UpperSide[ticker].ForEach(x => { if (x < 0) { x = 0; } });
-            //Params.DownSide[ticker].ForEach(x => { if (x > 0) { x = 0; } });
-
-            for (int i = 0; i < Params.DifferencePrice[ticker].Count; i++)
+            // Add DifferentPrice & UpperSide & DownSide
+            else if (IsSame == false && isFirst == false)
             {
-                if (Params.DifferencePrice[ticker][i] > 0)
+
+                Params.DifferencePrice[ticker].Add((
+                    double.Parse(candle.trade_price[candle.trade_price.Count - 1]) - 
+                    double.Parse(candle.trade_price[candle.trade_price.Count - 2])));
+
+
+                if (Params.DifferencePrice[ticker][Params.DifferencePrice[ticker].Count - 1] > 0)
                 {
-                    Params.UpperSide[ticker].Add(Params.DifferencePrice[ticker][i]);
+                    Params.UpperSide[ticker].Add(Params.DifferencePrice[ticker][Params.DifferencePrice[ticker].Count - 1]);
                     Params.DownSide[ticker].Add(0);
                 }
-                else if (Params.DifferencePrice[ticker][i] < 0)
+                else if (Params.DifferencePrice[ticker][Params.DifferencePrice[ticker].Count - 1] < 0)
                 {
                     Params.UpperSide[ticker].Add(0);
-                    Params.DownSide[ticker].Add(-Params.DifferencePrice[ticker][i]);
+                    Params.DownSide[ticker].Add(-Params.DifferencePrice[ticker][Params.DifferencePrice[ticker].Count - 1]);
+                }
+
+            }
+
+            // Initial add DifferentPrice & UpperSide & DownSide
+            else if (isFirst)
+            {
+                for (int i = 1; i < candle.trade_price.Count; i++)
+                {
+                    Params.DifferencePrice[ticker].Add((double.Parse(candle.trade_price[i]) - double.Parse(candle.trade_price[i - 1])));
+                }
+
+                for (int i = 0; i < Params.DifferencePrice[ticker].Count; i++)
+                {
+                    if (Params.DifferencePrice[ticker][i] > 0)
+                    {
+                        Params.UpperSide[ticker].Add(Params.DifferencePrice[ticker][i]);
+                        Params.DownSide[ticker].Add(0);
+                    }
+                    else if (Params.DifferencePrice[ticker][i] < 0)
+                    {
+                        Params.UpperSide[ticker].Add(0);
+                        Params.DownSide[ticker].Add(-Params.DifferencePrice[ticker][i]);
+                    }
                 }
             }
+ 
 
             var au = Params.UpperSide[ticker].Average();
             var ad = Params.DownSide[ticker].Average();
@@ -722,12 +835,51 @@ namespace CoinGo
             try
             {
                 Orderbook_ShortCode = UniverseDataGrid.Rows[e.RowIndex].Cells[0].Value.ToString();
-                CreateCandleChart();
+
+                if(Chart_check.Checked)
+                {
+                    CreateCandleChart();
+                }
+                else
+                {
+                    MessageBox.Show("차트보기가 체크되어있지 않습니다");
+                }
             }
             catch (Exception err)
             {
                 MessageBox.Show(err.ToString());
             }
+        }
+
+        private void UniverseDataGrid_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            try
+            {
+                Orderbook_ShortCode = UniverseDataGrid.Rows[e.RowIndex].Cells[0].Value.ToString();
+            }
+            catch(Exception err)
+            {
+                MessageBox.Show(err.ToString());
+            }
+        }
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label8_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void groupBox2_Enter(object sender, EventArgs e)
+        {
+            
         }
     }
 }
