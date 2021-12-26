@@ -16,6 +16,9 @@ namespace CoinGo
 
         public static UpbitAPI upbit = new UpbitAPI(AccessKey, SecretKey);
 
+        public static string Orderbook_ShortCode { get; set; } = "KRW-BTC";
+        public static List<string> MarketTickers = new List<string>();
+
         // Display functions
         public static bool IsDisplayPosition { get; set; } = false;
         public static bool IsDisplayOrderbook { get; set; } = false;
@@ -27,7 +30,6 @@ namespace CoinGo
         public static List<CoinState> CoinInfoList = new List<CoinState>();
         public static Dictionary<string, PositionState> CoinPositionDict = new Dictionary<string, PositionState>();
         public static Dictionary<string, OrderbookState> CoinOrderbookDict = new Dictionary<string, OrderbookState>();
-        public static List<string> MarketTickers = new List<string>();
 
         // CandleData
         public static Dictionary<string, CandleState> CandleDict = new Dictionary<string, CandleState>();
@@ -47,9 +49,19 @@ namespace CoinGo
         public static double PnLChange { get; set; }
 
         // Strategy1 RSI and BB
+        public static Dictionary<string, bool> Is_get_200_candle_data = new Dictionary<string, bool>();
+
         public static Dictionary<string, bool> Signal_1 = new Dictionary<string, bool>();
         public static Dictionary<string, bool> Signal_2 = new Dictionary<string, bool>();
 
         public static Dictionary<string, List<double>> CoinTickData = new Dictionary<string, List<double>>();
+
+        // Strategy2 Volume Strategy
+        public static Dictionary<string, bool> Is_Start_Strategy2 = new Dictionary<string, bool>();
+        public static Dictionary<string, double> Avg_Volume_Before_20_Candle = new Dictionary<string, double>();
+        public static Dictionary<string, List<double>> Avg_Volume_Now_Candle = new Dictionary<string, List<double>>();
+        public static Dictionary<string, string> Candle_Time = new Dictionary<string, string>();
+
+        public static List<string> Oppertunity = new List<string>();
     }
 }

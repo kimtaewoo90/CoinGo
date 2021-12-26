@@ -19,7 +19,6 @@ C:\Users\tangb\source\repos\CoinGo\bin\Debug\Microsoft.IdentityModel.Tokens.xml
 C:\Users\tangb\source\repos\CoinGo\bin\Debug\Newtonsoft.Json.xml
 C:\Users\tangb\source\repos\CoinGo\bin\Debug\System.IdentityModel.Tokens.Jwt.xml
 C:\Users\tangb\source\repos\CoinGo\bin\Debug\websocket-sharp.xml
-C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.csproj.AssemblyReference.cache
 C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.Properties.Resources.resources
 C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.csproj.GenerateResource.cache
 C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.csproj.CoreCompileInputs.cache
@@ -27,3 +26,4 @@ C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.csproj.CopyComplete
 C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.exe
 C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.pdb
 C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.Main.resources
+C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.csprojAssemblyReference.cache
