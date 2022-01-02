@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using WebSocketSharp;
 using System.Threading;
@@ -130,6 +131,7 @@ namespace CoinGo
 
                 if (strategy2_check.Checked)
                 {
+
                     Strategy2_Volume_Speed strategy2 = new Strategy2_Volume_Speed(code, res);
 
                     if(Params.Is_Start_Strategy2[code] is true)
@@ -143,15 +145,16 @@ namespace CoinGo
                     // Change Candle
                     if (double.Parse(res["trade_time"].ToString().Substring(2, 2)) - double.Parse(Params.Candle_Time[code]) >= 3)
                     {
+                        /*
                         if(Params.Avg_Volume_Now_Candle[code].Count > 0)
                         {
                             Params.CandleDict[code].total_trading_volume.RemoveAt(0);
                             Params.CandleDict[code].total_trading_volume.Add(Params.Avg_Volume_Now_Candle[code].Average(x => Math.Abs(x)).ToString());
                             Params.Avg_Volume_Before_20_Candle[code] = Params.CandleDict[code].total_trading_volume.Average(x => Math.Abs(double.Parse(x)));
                         }
-
-                        // Refresh traded volume list
-                        Params.Avg_Volume_Now_Candle[code] = new List<double>();
+                        */
+                        strategy2.Get_Avg_Volume_Before_20_Candle();
+                        util.delay(200);
                     }
                     else
                     {
@@ -164,9 +167,23 @@ namespace CoinGo
                         // 매수
                         //MessageBox.Show($"{code} is signal coin! Need to buy");
                         Params.Oppertunity.Add(code);
+
                         for (int i = 0; i < Params.Oppertunity.Count; i++) 
                         {
-                            write_sys_log(Params.Oppertunity.Count.ToString(), 0);
+                            write_sys_log($"{ticker} is Oppertunity", 0);
+
+                            var changeResult = JObject.Parse(Params.upbit.GetOrderChance(code));
+
+                            var accntBalance = double.Parse(changeResult["bid_account"]["balance"].ToString());
+                            var orderVolume = accntBalance / double.Parse(Params.CoinInfoDict[code].curPrice);
+
+                            if (accntBalance > 5000 && code != "KRW-BORA" && code != "KRW-HUM")
+                            {
+                                // 매수 주문
+                                var result = Params.upbit.MakeOrder(market: code, side: UpbitAPI.UpbitOrderSide.ask, volume: Convert.ToDecimal(orderVolume), ord_type: UpbitAPI.UpbitOrderType.price);
+                            }
+               
+
                         }
                     }
                 }
@@ -220,16 +237,16 @@ namespace CoinGo
                             {
                                 row.Cells["ticker"].Value = code;
                                 row.Cells["curPrice"].Value = String.Format("{0:0,0}", curPrice);
-                                row.Cells["change"].Value = String.Format("{0:0.#}", change);
+                                row.Cells["change"].Value = String.Format("{0:0.#}", change) + " %";
                                 row.Cells["volume"].Value = String.Format("{0:0,0}", volume);
                                 return;
                             }
                         }
 
-                        UniverseDataGrid.Rows.Add(code, String.Format("{0:0,0}", curPrice), String.Format("{0:0.#}", change), String.Format("{0:0,0}", volume));
+                        UniverseDataGrid.Rows.Add(code, String.Format("{0:0,0}", curPrice), String.Format("{0:0.#}", change) + " %", String.Format("{0:0,0}", volume));
                     }
 
-                    else UniverseDataGrid.Rows.Add(code, String.Format("{0:0,0}", curPrice), String.Format("{0:0.#}", change), String.Format("{0:0,0}", volume));
+                    else UniverseDataGrid.Rows.Add(code, String.Format("{0:0,0}", curPrice), String.Format("{0:0.#}", change) + " %", String.Format("{0:0,0}", volume));
 
                 }));
             }
@@ -248,16 +265,16 @@ namespace CoinGo
                         {
                             row.Cells["ticker"].Value = code;
                             row.Cells["curPrice"].Value = String.Format("{0:0,0}", curPrice);
-                            row.Cells["change"].Value = String.Format("{0:0.#}", change);
+                            row.Cells["change"].Value = String.Format("{0:0.#}", change) + " %";
                             row.Cells["volume"].Value = String.Format("{0:0,0}", volume);
                             return;
                         }
                     }
 
-                    UniverseDataGrid.Rows.Add(code, String.Format("{0:0,0}", curPrice), String.Format("{0:0.#}", change), String.Format("{0:0,0}", volume));
+                    UniverseDataGrid.Rows.Add(code, String.Format("{0:0,0}", curPrice), String.Format("{0:0.#}", change) + " %", String.Format("{0:0,0}", volume));
                 }
 
-                else UniverseDataGrid.Rows.Add(code, String.Format("{0:0,0}", curPrice), String.Format("{0:0.#}", change), String.Format("{0:0,0}", volume));
+                else UniverseDataGrid.Rows.Add(code, String.Format("{0:0,0}", curPrice), String.Format("{0:0.#}", change) + " %", String.Format("{0:0,0}", volume));
             }
         }
 
@@ -536,6 +553,16 @@ namespace CoinGo
                     var rate = $"{Math.Round(((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100, 2)} %";
                     var tradingPnL = $"{Math.Round((double.Parse(cur_price) - double.Parse(avg_buy_price)) * double.Parse(balance), 2)} 원";
                     var unit_currency = Result[i].GetValue("unit_currency").ToString().Trim();
+
+                    // 매도 주문
+                    if ((((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 > 1.0 ||
+                        ((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 < -1.5) &&
+                        (currency != "BORA" && currency != "HUM"))
+
+                    {
+                        var result = Params.upbit.MakeOrder(market: code, side: UpbitAPI.UpbitOrderSide.ask, volume:Convert.ToDecimal(balance), ord_type: UpbitAPI.UpbitOrderType.market);
+                    }
+
 
                     PositionState state = new PositionState(currency.ToString(), balance.ToString(), locked.ToString(), avg_buy_price.ToString(), unit_currency.ToString());
                     Params.CoinPositionDict[currency] = state;

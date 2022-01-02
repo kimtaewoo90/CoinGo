@@ -94,10 +94,10 @@ namespace CoinGo
             string url = "https://api.upbit.com/v1/order";
             return CallAPI_WithParam(url, new NameValueCollection { { "uuid", uuid } }, HttpMethod.Get);
         }
-        public string MakeOrder(string market, UpbitOrderSide side, decimal volume, decimal price, UpbitOrderType ord_type = UpbitOrderType.limit)
+        public string MakeOrder(string market, UpbitOrderSide side, decimal volume, /*decimal price,*/ UpbitOrderType ord_type = UpbitOrderType.limit)
         {
             string url = "https://api.upbit.com/v1/orders";
-            return CallAPI_WithParam(url, new NameValueCollection { { "market", market }, { "side", side.ToString() }, { "volume", volume.ToString() }, { "price", price.ToString() }, { "ord_type", ord_type.ToString() } }, HttpMethod.Post);
+            return CallAPI_WithParam(url, new NameValueCollection { { "market", market }, { "side", side.ToString() }, { "volume", volume.ToString() }, /*{ "price", price.ToString() },*/ { "ord_type", ord_type.ToString() } }, HttpMethod.Post);
         }
         public string CancelOrder(string uuid)
         {
@@ -204,6 +204,6 @@ namespace CoinGo
         }
         public enum UpbitMinuteCandleType { _1 = 1, _3 = 3, _5 = 5, _10 = 10, _15 = 15, _30 = 30, _60 = 60, _240 = 240 }
         public enum UpbitOrderSide { ask, bid }
-        public enum UpbitOrderType { limit }
+        public enum UpbitOrderType { limit, price, market }
     }
 }

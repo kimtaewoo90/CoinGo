@@ -26,4 +26,9 @@ C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.csproj.CopyComplete
 C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.exe
 C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.pdb
 C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.Main.resources
-C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.csprojAssemblyReference.cache
+C:\Users\tangb\source\repos\CoinGo\bin\Debug\System.Text.Encodings.Web.dll
+C:\Users\tangb\source\repos\CoinGo\bin\Debug\System.Memory.dll
+C:\Users\tangb\source\repos\CoinGo\bin\Debug\System.Buffers.dll
+C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.csproj.AssemblyReference.cache
+C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.csproj.SuggestedBindingRedirects.cache
+C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.exe.config

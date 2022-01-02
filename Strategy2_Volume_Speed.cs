@@ -33,6 +33,9 @@ namespace CoinGo
 
             Params.Avg_Volume_Before_20_Candle[ticker] = candle.total_trading_volume.Average(x => Math.Abs(double.Parse(x)));
             Params.Candle_Time[ticker] = candle.date_time[candle.date_time.Count - 1].Substring(14,2);
+
+            // Refresh traded volume list
+            Params.Avg_Volume_Now_Candle[ticker] = new List<double>();
         }
 
         public bool Strategy2_Signals()
