@@ -24,6 +24,10 @@ namespace CoinGo
         public static bool IsDisplayOrderbook { get; set; } = false;
         public static bool IsDisplayChart { get; set; } = false;
 
+        // Blotter (Order)
+        public static Dictionary<string, double> TotalTradedPriceAtBoughtTime = new Dictionary<string, double>();
+        public static Dictionary<string, double> LatestCandleVolume = new Dictionary<string, double>();
+        public static Dictionary<string, bool> ForcedSell = new Dictionary<string, bool>();
 
         // Coin
         public static Dictionary<string, CoinState> CoinInfoDict = new Dictionary<string, CoinState>();
@@ -47,6 +51,8 @@ namespace CoinGo
         public static double CashAsset { get; set; }
         public static double PnL { get; set; }
         public static double PnLChange { get; set; }
+
+
 
         // Strategy1 RSI and BB
         public static Dictionary<string, bool> Is_get_200_candle_data = new Dictionary<string, bool>();

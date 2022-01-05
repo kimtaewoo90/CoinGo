@@ -26,13 +26,14 @@ namespace CoinGo
 
         public void Get_Avg_Volume_Before_20_Candle()
         {         
-            var CandleData = Params.upbit.GetCandles_Minute(ticker, UpbitAPI.UpbitMinuteCandleType._3, count: 20);
+            var CandleData = Params.upbit.GetCandles_Minute(ticker, UpbitAPI.UpbitMinuteCandleType._1, count: 30);
             CandleState candle = new CandleState(CandleData);
 
             Params.CandleDict[ticker] = candle;
 
-            Params.Avg_Volume_Before_20_Candle[ticker] = candle.total_trading_volume.Average(x => Math.Abs(double.Parse(x)));
+            Params.Avg_Volume_Before_20_Candle[ticker] = candle.total_trading_volume.Average(x => double.Parse(x));
             Params.Candle_Time[ticker] = candle.date_time[candle.date_time.Count - 1].Substring(14,2);
+            Params.LatestCandleVolume[ticker] = double.Parse(candle.total_trading_volume[candle.total_trading_volume.Count - 1]);
 
             // Refresh traded volume list
             Params.Avg_Volume_Now_Candle[ticker] = new List<double>();
@@ -45,10 +46,10 @@ namespace CoinGo
             if (Params.Avg_Volume_Now_Candle[ticker].Count == 0) return false;
 
 
-            if (Params.Avg_Volume_Now_Candle[ticker].Average(x => Math.Abs(x)) > Params.Avg_Volume_Before_20_Candle[ticker] &&
+            if (Params.Avg_Volume_Now_Candle[ticker].Sum() > Params.Avg_Volume_Before_20_Candle[ticker] * 5 &&
                 double.Parse(res["signed_change_price"].ToString()) > 0 &&
-                double.Parse(res["acc_trade_price"].ToString()) > 5000000000 &&
-                Params.Avg_Volume_Now_Candle[ticker].Count > 50)
+                Params.Avg_Volume_Now_Candle[ticker].Sum() > 50000000000 &&
+                Params.Avg_Volume_Now_Candle[ticker].Count > 180)
             {
                 signal = true;                
             }

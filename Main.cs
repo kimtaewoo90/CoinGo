@@ -73,16 +73,21 @@ namespace CoinGo
                 Is_get_200_candle_data[MarketTickers[i]] = true;
                 Params.Candle_Time[MarketTickers[i]] = "0";
                 Params.Is_Start_Strategy2[MarketTickers[i]] = true;
+                Params.ForcedSell[MarketTickers[i]] = false;
                 Params.Avg_Volume_Now_Candle[MarketTickers[i]] = new List<double>();
             }
 
-            
+            Params.ForcedSell["KRW-KRW"] = false;
+            Params.ForcedSell["KRW-APENFT"] = false;
+
+            // 포지션 초기화
+            UpdatePosition();
 
             // Make SendMsg for WebSocket
             var sendMsg = WS.MakeSendMsg(MarketTickers, "ticker");
             SendWebSocket(sendMsg);
 
-            PositionThread = new Thread(new ThreadStart(UpdatePosition));
+            PositionThread = new Thread(new ThreadStart(DisplayPosition));
             PositionThread.Start();
 
             OrderbookThread = new Thread(new ThreadStart(UpdateOrderbook));
@@ -125,7 +130,7 @@ namespace CoinGo
                     Strategy1_RSI_BB strategy1 = new Strategy1_RSI_BB(code);
 
                     // Candle data 수집
-                    strategy1.GetCandleData(code);                   
+                    strategy1.GetCandleData(code);
                     strategy1.UpdateSignals(res);
                 }
 
@@ -134,7 +139,7 @@ namespace CoinGo
 
                     Strategy2_Volume_Speed strategy2 = new Strategy2_Volume_Speed(code, res);
 
-                    if(Params.Is_Start_Strategy2[code] is true)
+                    if (Params.Is_Start_Strategy2[code] is true)
                     {
                         // Request candle data
                         strategy2.Get_Avg_Volume_Before_20_Candle();
@@ -143,52 +148,63 @@ namespace CoinGo
                     }
 
                     // Change Candle
-                    if (double.Parse(res["trade_time"].ToString().Substring(2, 2)) - double.Parse(Params.Candle_Time[code]) >= 3)
-                    {
-                        /*
-                        if(Params.Avg_Volume_Now_Candle[code].Count > 0)
-                        {
-                            Params.CandleDict[code].total_trading_volume.RemoveAt(0);
-                            Params.CandleDict[code].total_trading_volume.Add(Params.Avg_Volume_Now_Candle[code].Average(x => Math.Abs(x)).ToString());
-                            Params.Avg_Volume_Before_20_Candle[code] = Params.CandleDict[code].total_trading_volume.Average(x => Math.Abs(double.Parse(x)));
-                        }
-                        */
+                    if (double.Parse(res["trade_time"].ToString().Substring(2, 2)) - double.Parse(Params.Candle_Time[code]) >= 1)
+                    {                        
                         strategy2.Get_Avg_Volume_Before_20_Candle();
                         util.delay(200);
+
+                        // 매수 후 거래량이 줄어들 때 강제 매도
+                        if (Params.TotalTradedPriceAtBoughtTime.ContainsKey(code))
+                        {
+                            if (Params.LatestCandleVolume[code] * 3 < Params.TotalTradedPriceAtBoughtTime[code])
+                            {
+                                Params.ForcedSell[code] = true;
+                            }
+                        }
                     }
                     else
                     {
                         // Update traded volume in same candle
-                        Params.Avg_Volume_Now_Candle[code].Add(Math.Abs(double.Parse(res["trade_volume"].ToString())));
+                        //Params.Avg_Volume_Now_Candle[code].Add(Math.Abs(double.Parse(res["trade_volume"].ToString())));
+                        Params.Avg_Volume_Now_Candle[code].Add(Math.Abs(double.Parse(res["trade_price"].ToString())));
                     }
 
-                    if (strategy2.Strategy2_Signals())
+                    if (strategy2.Strategy2_Signals() &&
+                        !Params.CoinPositionDict.ContainsKey(code.Substring(4, code.Length - 4)))
                     {
                         // 매수
                         //MessageBox.Show($"{code} is signal coin! Need to buy");
-                        Params.Oppertunity.Add(code);
 
-                        for (int i = 0; i < Params.Oppertunity.Count; i++) 
+                        write_sys_log($"{code} is Oppertunity", 0);
+                        try
                         {
-                            write_sys_log($"{ticker} is Oppertunity", 0);
-
                             var changeResult = JObject.Parse(Params.upbit.GetOrderChance(code));
 
-                            var accntBalance = double.Parse(changeResult["bid_account"]["balance"].ToString());
-                            var orderVolume = accntBalance / double.Parse(Params.CoinInfoDict[code].curPrice);
-
-                            if (accntBalance > 5000 && code != "KRW-BORA" && code != "KRW-HUM")
+                            if (changeResult != null)
                             {
-                                // 매수 주문
-                                var result = Params.upbit.MakeOrder(market: code, side: UpbitAPI.UpbitOrderSide.ask, volume: Convert.ToDecimal(orderVolume), ord_type: UpbitAPI.UpbitOrderType.price);
-                            }
-               
 
+                                var accntBalance = double.Parse(changeResult["bid_account"]["balance"].ToString());
+                                var orderVolume = Math.Ceiling(accntBalance / double.Parse(Params.CoinInfoDict[code].curPrice));
+
+                                if (accntBalance > 5000 && code != "KRW-BORA" && code != "KRW-HUM")
+                                {
+                                    // 매수 주문
+                                    var result = Params.upbit.MakeOrder(market: code, side: UpbitAPI.UpbitOrderSide.bid, volume: Convert.ToDecimal(accntBalance * 0.95), ord_type: UpbitAPI.UpbitOrderType.price);
+
+                                    // Update BuyInfo
+                                    Params.TotalTradedPriceAtBoughtTime[code] = Params.Avg_Volume_Now_Candle[code].Sum();
+
+                                    // 나중엔 매수 체결 완료 되는 함수안에 포함
+                                    UpdatePosition();
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            write_sys_log(ex.ToString(), 0);
                         }
                     }
                 }
-
-
             }
 
             // Orderbook of each coins.
@@ -208,7 +224,7 @@ namespace CoinGo
             {
                 var code = res["code"].ToString();
 
-             
+
             }
 
         }
@@ -219,7 +235,7 @@ namespace CoinGo
             var curPrice = double.Parse(res["trade_price"].ToString());
             var openingPrice = double.Parse(res["opening_price"].ToString());
             var change = ((curPrice / openingPrice) - 1) * 100;
-            var volume = Math.Round(double.Parse(res["acc_trade_volume"].ToString()), 2);
+            var volume = Math.Round(double.Parse(res["acc_trade_price"].ToString()), 2);
 
             if (UniverseDataGrid.InvokeRequired)
             {
@@ -290,7 +306,7 @@ namespace CoinGo
                     {
                         Orderbook_Code.Text = code;
 
-                        OrderbookDataGrid.Rows[0].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][9]["ask_price"]) ;
+                        OrderbookDataGrid.Rows[0].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][9]["ask_price"]);
                         OrderbookDataGrid.Rows[0].Cells[0].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][9]["ask_size"]);
 
                         OrderbookDataGrid.Rows[1].Cells[1].Value = String.Format("{0:0,0}", orderbook["orderbook_units"][8]["ask_price"]);
@@ -428,44 +444,43 @@ namespace CoinGo
             {
                 positionDataGrid.Invoke(new MethodInvoker(delegate ()
                 {
-                    positionDataGrid.Invoke(new MethodInvoker(delegate ()
+
+                    if (positionDataGrid.Rows.Count > 1)
                     {
-                        if (positionDataGrid.Rows.Count > 1)
+                        foreach (DataGridViewRow row in positionDataGrid.Rows)
                         {
-                            foreach (DataGridViewRow row in positionDataGrid.Rows)
+                            if (row.Cells["code"].Value == null)
+                                break;
+
+
+                            if (row.Cells["code"].Value.ToString() == currency || row.Cells["code"].Value == null)
                             {
-                                if (row.Cells["code"].Value == null)
-                                    break;
-
-
-                                if (row.Cells["code"].Value.ToString() == currency || row.Cells["code"].Value == null)
-                                {
-                                    row.Cells["code"].Value = String.Format("{0:0,0}", currency);
-                                    row.Cells["Quantity"].Value = String.Format("{0:0,0}", balance);
-                                    row.Cells["buyPrice"].Value = String.Format("{0:0,0}", buy_price);
-                                    row.Cells["curPrice_position"].Value = String.Format("{0:0,0}", cur_price);
-                                    row.Cells["rate"].Value = rate;
-                                    row.Cells["tradingPnL"].Value = String.Format("{0:0,0}", pnl);
-                                    return;
-                                }
+                                row.Cells["code"].Value = String.Format("{0:0,0}", currency);
+                                row.Cells["Quantity"].Value = String.Format("{0:0,0}", balance);
+                                row.Cells["buyPrice"].Value = String.Format("{0:0,0}", buy_price);
+                                row.Cells["curPrice_position"].Value = String.Format("{0:0,0}", cur_price);
+                                row.Cells["rate"].Value = rate;
+                                row.Cells["tradingPnL"].Value = String.Format("{0:0,0}", pnl);
+                                return;
                             }
-
-                            positionDataGrid.Rows.Add(String.Format("{0:0,0}", currency), 
-                                                      String.Format("{0:0,0}", balance),
-                                                      String.Format("{0:0,0}", buy_price),
-                                                      String.Format("{0:0,0}", cur_price), 
-                                                      rate,
-                                                      String.Format("{0:0,0}", pnl));
                         }
 
-                        else positionDataGrid.Rows.Add(String.Format("{0:0,0}", currency),
-                                                        String.Format("{0:0,0}", balance),
-                                                        String.Format("{0:0,0}", buy_price),
-                                                        String.Format("{0:0,0}", cur_price), 
-                                                        rate,
-                                                        String.Format("{0:0,0}", pnl));
+                        positionDataGrid.Rows.Add(String.Format("{0:0,0}", currency),
+                                                  String.Format("{0:0,0}", balance),
+                                                  String.Format("{0:0,0}", buy_price),
+                                                  String.Format("{0:0,0}", cur_price),
+                                                  rate,
+                                                  String.Format("{0:0,0}", pnl));
+                    }
 
-                    }));
+                    else positionDataGrid.Rows.Add(String.Format("{0:0,0}", currency),
+                                                    String.Format("{0:0,0}", balance),
+                                                    String.Format("{0:0,0}", buy_price),
+                                                    String.Format("{0:0,0}", cur_price),
+                                                    rate,
+                                                    String.Format("{0:0,0}", pnl));
+
+
                 }));
             }
 
@@ -508,19 +523,86 @@ namespace CoinGo
             }
         }
 
+        public void DeletePositionGrid(string currency)
+        {
+
+            if (positionDataGrid.InvokeRequired)
+            {
+
+                positionDataGrid.Invoke(new MethodInvoker(delegate ()
+                {
+                    if (positionDataGrid.Rows.Count > 1)
+                    {
+                        foreach (DataGridViewRow row in positionDataGrid.Rows)
+                        {
+                            if (row.Cells["code"].Value != null && row.Cells["code"].Value.ToString() == currency)
+                            {
+                                positionDataGrid.Rows.Remove(row);
+                                break;
+                            }
+                        }
+                    }
+                }));
+            }
+
+            else
+            {
+                if (positionDataGrid.Rows.Count > 1)
+                {
+                    foreach (DataGridViewRow row in positionDataGrid.Rows)
+                    {
+                        if (row.Cells["code"].Value.ToString() == currency)
+                        {
+                            positionDataGrid.Rows.Remove(row);
+                            break;
+                        }
+                    }
+                }
+            }
+
+        }
+
         // LogThread
         public void UpdateLog()
         {
 
         }
 
-        // PositionThread
         public void UpdatePosition()
+        {
+            List<JObject> Result = Params.upbit.GetAccount();
+
+            Params.CoinPositionDict = new Dictionary<string, PositionState>();
+            util.delay(200);
+
+            for (int i = 0; i < Result.Count; i++)
+            {
+                var currency = Result[i].GetValue("currency").ToString().Trim();
+                var balance = Result[i].GetValue("balance").ToString().Trim();
+                var locked = Result[i].GetValue("locked").ToString().Trim();
+                var avg_buy_price = Result[i].GetValue("avg_buy_price").ToString().Trim();
+                var cur_price = "0.0";
+
+                string code = $"KRW-{currency}";
+
+                if (Params.CoinInfoDict.Count != 0)
+                {
+                    if (Params.CoinInfoDict.ContainsKey(code))
+                        cur_price = Params.CoinInfoDict[code].curPrice;
+                }
+
+                PositionState position = new PositionState(currency, balance, locked, avg_buy_price, cur_price);
+                Params.CoinPositionDict[currency] = position;
+            }
+        }
+
+        // PositionThread
+        public void DisplayPosition()
         {
             while (true)
             {
-                List<JObject> Result = Params.upbit.GetAccount();
-                util.delay(200);
+                //List<JObject> Result = Params.upbit.GetAccount();
+                //util.delay(500);
 
                 // Initialize Position
                 Params.TotalAsset = 0.0;
@@ -530,14 +612,16 @@ namespace CoinGo
                 Params.PnLChange = 0.0;
                 var cash = 0.0;
 
+                List<string> keys = Params.CoinPositionDict.Keys.ToList();
+
                 // Display Position
-                for (int i = 0; i < Result.Count; i++)
+                for (int i = 0; i < Params.CoinPositionDict.Count; i++)
                 {
-                    var currency = Result[i].GetValue("currency").ToString().Trim();
-                    var balance = Result[i].GetValue("balance").ToString().Trim();
-                    var locked = Result[i].GetValue("locked").ToString().Trim();
-                    var avg_buy_price = Result[i].GetValue("avg_buy_price").ToString().Trim();
-                    var cur_price = "0.0";
+                    var currency = Params.CoinPositionDict[keys[i]].currency.ToString();
+                    var balance = Params.CoinPositionDict[keys[i]].balance.ToString();
+                    var locked = Params.CoinPositionDict[keys[i]].locked.ToString();
+                    var avg_buy_price = Params.CoinPositionDict[keys[i]].avg_buy_price.ToString();
+                    var cur_price = Params.CoinPositionDict[keys[i]].cur_price.ToString();
 
                     if (currency == "KRW") cash = double.Parse(balance);
 
@@ -549,34 +633,42 @@ namespace CoinGo
                             cur_price = Params.CoinInfoDict[code].curPrice;
                     }
 
+                    
 
                     var rate = $"{Math.Round(((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100, 2)} %";
                     var tradingPnL = $"{Math.Round((double.Parse(cur_price) - double.Parse(avg_buy_price)) * double.Parse(balance), 2)} 원";
-                    var unit_currency = Result[i].GetValue("unit_currency").ToString().Trim();
+                    //var unit_currency = Result[i].GetValue("unit_currency").ToString().Trim();
 
                     // 매도 주문
-                    if ((((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 > 1.0 ||
+                    if (((((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 > 1.0 ||
                         ((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 < -1.5) &&
-                        (currency != "BORA" && currency != "HUM"))
+                        (currency != "BORA" && currency != "HUM") &&
+                        double.Parse(cur_price) > 0.0) || Params.ForcedSell[code])
 
                     {
-                        var result = Params.upbit.MakeOrder(market: code, side: UpbitAPI.UpbitOrderSide.ask, volume:Convert.ToDecimal(balance), ord_type: UpbitAPI.UpbitOrderType.market);
+                        var result = Params.upbit.MakeOrder(market: code, side: UpbitAPI.UpbitOrderSide.ask, volume: Convert.ToDecimal(balance), ord_type: UpbitAPI.UpbitOrderType.market);
+                        Params.CoinPositionDict.Remove(currency);
+                        DeletePositionGrid(currency);
+                        UpdatePosition();
                     }
 
+                    else
+                    {
+                        Params.CoinPositionDict[currency].cur_price = cur_price;
 
-                    PositionState state = new PositionState(currency.ToString(), balance.ToString(), locked.ToString(), avg_buy_price.ToString(), unit_currency.ToString());
-                    Params.CoinPositionDict[currency] = state;
+                        // Display Position Func
+                        DisplayTargetCoins(currency, balance, avg_buy_price, cur_price, rate, tradingPnL);
+                    }
 
                     Params.TotalAsset = Params.TotalAsset + double.Parse(balance) * double.Parse(cur_price);
                     Params.CoinAsset = Params.CoinAsset + double.Parse(balance) * double.Parse(cur_price);
                     Params.PnL = Params.PnL + (double.Parse(cur_price) - double.Parse(avg_buy_price)) * double.Parse(balance);
 
-                    DisplayTargetCoins(currency, balance, avg_buy_price, cur_price, rate, tradingPnL);
                 }
 
                 Params.TotalAsset = Params.TotalAsset + cash;
                 Params.CashAsset = cash;
-                
+
                 // Display Total Position display
                 if (this.InvokeRequired)
                 {
@@ -726,7 +818,7 @@ namespace CoinGo
             {
                 Orderbook_ShortCode = UniverseDataGrid.Rows[e.RowIndex].Cells[0].Value.ToString();
 
-                if(Chart_check.Checked)
+                if (Chart_check.Checked)
                 {
                     //CreateCandleChart();
                 }
@@ -747,29 +839,11 @@ namespace CoinGo
             {
                 Orderbook_ShortCode = UniverseDataGrid.Rows[e.RowIndex].Cells[0].Value.ToString();
             }
-            catch(Exception err)
+            catch (Exception err)
             {
                 MessageBox.Show(err.ToString());
             }
         }
-        private void label1_Click(object sender, EventArgs e)
-        {
 
-        }
-
-        private void label2_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label8_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void groupBox2_Enter(object sender, EventArgs e)
-        {
-            
-        }
     }
 }

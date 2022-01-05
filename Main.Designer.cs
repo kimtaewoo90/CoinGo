@@ -438,7 +438,6 @@ namespace CoinGo
             this.label1.Size = new System.Drawing.Size(94, 24);
             this.label1.TabIndex = 3;
             this.label1.Text = "총 자산";
-            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // label2
             // 
@@ -449,7 +448,6 @@ namespace CoinGo
             this.label2.Size = new System.Drawing.Size(114, 24);
             this.label2.TabIndex = 4;
             this.label2.Text = "코인 자산";
-            this.label2.Click += new System.EventHandler(this.label2_Click);
             // 
             // label3
             // 
@@ -501,7 +499,6 @@ namespace CoinGo
             this.groupBox2.TabIndex = 8;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "자산현황";
-            this.groupBox2.Enter += new System.EventHandler(this.groupBox2_Enter);
             // 
             // PnL_Change
             // 
@@ -532,7 +529,6 @@ namespace CoinGo
             this.Coin_Asset.Size = new System.Drawing.Size(15, 14);
             this.Coin_Asset.TabIndex = 10;
             this.Coin_Asset.Text = "0";
-            this.Coin_Asset.Click += new System.EventHandler(this.label8_Click);
             // 
             // Cash_Asset
             // 

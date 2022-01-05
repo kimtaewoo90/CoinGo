@@ -97,7 +97,15 @@ namespace CoinGo
         public string MakeOrder(string market, UpbitOrderSide side, decimal volume, /*decimal price,*/ UpbitOrderType ord_type = UpbitOrderType.limit)
         {
             string url = "https://api.upbit.com/v1/orders";
-            return CallAPI_WithParam(url, new NameValueCollection { { "market", market }, { "side", side.ToString() }, { "volume", volume.ToString() }, /*{ "price", price.ToString() },*/ { "ord_type", ord_type.ToString() } }, HttpMethod.Post);
+            if (side == UpbitOrderSide.bid)
+            {
+                return CallAPI_WithParam(url, new NameValueCollection { { "market", market }, { "side", side.ToString() }, { "price", volume.ToString() }, /*{ "price", price.ToString() },*/ { "ord_type", ord_type.ToString() } }, HttpMethod.Post);
+
+            }
+            else
+            {
+                return CallAPI_WithParam(url, new NameValueCollection { { "market", market }, { "side", side.ToString() }, { "volume", volume.ToString() }, /*{ "price", price.ToString() },*/ { "ord_type", ord_type.ToString() } }, HttpMethod.Post);
+            }
         }
         public string CancelOrder(string uuid)
         {
