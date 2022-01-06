@@ -32,25 +32,6 @@ namespace CoinGo
         public Main()
         {
             InitializeComponent();
-
-            /*
-            Series series = Candle_Chart.Series.Add("S_candle1");
-            series["PriceUpColor"] = "Red";
-            series["PriceDownColor"] = "Blue";
-
-            series.ChartType = SeriesChartType.Candlestick;
-            Candle_Chart.AxisViewChanged += ChartAxisChanged;
-            Candle_Chart.ChartAreas[0].AxisX.ScaleView.Zoomable = true;
-            Candle_Chart.ChartAreas[0].AxisY.ScaleView.Zoomable = true;
-            Candle_Chart.ChartAreas[0].CursorX.AutoScroll = true;
-            Candle_Chart.ChartAreas[0].CursorY.AutoScroll = true;
-            Candle_Chart.ChartAreas[0].CursorX.IsUserSelectionEnabled = true;
-            Candle_Chart.ChartAreas[0].CursorY.IsUserSelectionEnabled = true;
-            Candle_Chart.ChartAreas[0].AxisX.IsReversed = true;
-
-            Candle_Chart.ChartAreas[0].AxisX.MajorGrid.LineWidth = 0;
-            Candle_Chart.ChartAreas[0].AxisY.MajorGrid.LineWidth = 0;
-            */
             CoinStart();
         }
 
@@ -137,72 +118,52 @@ namespace CoinGo
                 if (strategy2_check.Checked)
                 {
 
-                    Strategy2_Volume_Speed strategy2 = new Strategy2_Volume_Speed(code, res);
-
-                    if (Params.Is_Start_Strategy2[code] is true)
+                    try
                     {
-                        // Request candle data
-                        strategy2.Get_Avg_Volume_Before_20_Candle();
-                        Params.Is_Start_Strategy2[code] = false;
-                        util.delay(200);
-                    }
+                        Strategy2 strategy2 = new Strategy2(code, res, util);
 
-                    // Change Candle
-                    if (double.Parse(res["trade_time"].ToString().Substring(2, 2)) - double.Parse(Params.Candle_Time[code]) >= 1)
-                    {                        
-                        strategy2.Get_Avg_Volume_Before_20_Candle();
-                        util.delay(200);
+                        // Main Logic
+                        strategy2.MainLogic();
 
-                        // 매수 후 거래량이 줄어들 때 강제 매도
-                        if (Params.TotalTradedPriceAtBoughtTime.ContainsKey(code))
+                        if (!Params.CoinPositionDict.ContainsKey(code))
                         {
-                            if (Params.LatestCandleVolume[code] * 3 < Params.TotalTradedPriceAtBoughtTime[code])
+                            var buy_signal = strategy2.RequestLongSignal();
+
+                            if (buy_signal is true)
                             {
-                                Params.ForcedSell[code] = true;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // Update traded volume in same candle
-                        //Params.Avg_Volume_Now_Candle[code].Add(Math.Abs(double.Parse(res["trade_volume"].ToString())));
-                        Params.Avg_Volume_Now_Candle[code].Add(Math.Abs(double.Parse(res["trade_price"].ToString())));
-                    }
+                                var result = strategy2.SendLongOrder();
 
-                    if (strategy2.Strategy2_Signals() &&
-                        !Params.CoinPositionDict.ContainsKey(code.Substring(4, code.Length - 4)))
-                    {
-                        // 매수
-                        //MessageBox.Show($"{code} is signal coin! Need to buy");
-
-                        write_sys_log($"{code} is Oppertunity", 0);
-                        try
-                        {
-                            var changeResult = JObject.Parse(Params.upbit.GetOrderChance(code));
-
-                            if (changeResult != null)
-                            {
-
-                                var accntBalance = double.Parse(changeResult["bid_account"]["balance"].ToString());
-                                var orderVolume = Math.Ceiling(accntBalance / double.Parse(Params.CoinInfoDict[code].curPrice));
-
-                                if (accntBalance > 5000 && code != "KRW-BORA" && code != "KRW-HUM")
+                                if(result != null)
                                 {
-                                    // 매수 주문
-                                    var result = Params.upbit.MakeOrder(market: code, side: UpbitAPI.UpbitOrderSide.bid, volume: Convert.ToDecimal(accntBalance * 0.95), ord_type: UpbitAPI.UpbitOrderType.price);
 
-                                    // Update BuyInfo
-                                    Params.TotalTradedPriceAtBoughtTime[code] = Params.Avg_Volume_Now_Candle[code].Sum();
-
-                                    // 나중엔 매수 체결 완료 되는 함수안에 포함
-                                    UpdatePosition();
                                 }
                             }
                         }
-                        catch (Exception ex)
+
+                        else
                         {
-                            write_sys_log(ex.ToString(), 0);
+                            // update position coin's cur_price
+                            Params.CoinPositionDict[code].cur_price = Params.CoinInfoDict[code].curPrice;
+
+                            var sell_signal = strategy2.RequestShortSignal();
+
+                            if (sell_signal is true)
+                            {
+                                var result = strategy2.SendShortOrder();
+
+                                if (result != null)
+                                {
+                                    Params.CoinPositionDict.Remove(code);
+                                    DeletePositionGrid(code);
+                                }
+
+                            }
                         }
+                    }
+                    
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message.ToString());
                     }
                 }
             }
@@ -591,8 +552,8 @@ namespace CoinGo
                         cur_price = Params.CoinInfoDict[code].curPrice;
                 }
 
-                PositionState position = new PositionState(currency, balance, locked, avg_buy_price, cur_price);
-                Params.CoinPositionDict[currency] = position;
+                PositionState position = new PositionState(code, balance, locked, avg_buy_price, cur_price);
+                Params.CoinPositionDict[code] = position;
             }
         }
 
@@ -601,8 +562,8 @@ namespace CoinGo
         {
             while (true)
             {
-                //List<JObject> Result = Params.upbit.GetAccount();
-                //util.delay(500);
+                List<JObject> Result = Params.upbit.GetAccount();
+                util.delay(1000);
 
                 // Initialize Position
                 Params.TotalAsset = 0.0;
@@ -617,16 +578,18 @@ namespace CoinGo
                 // Display Position
                 for (int i = 0; i < Params.CoinPositionDict.Count; i++)
                 {
-                    var currency = Params.CoinPositionDict[keys[i]].currency.ToString();
-                    var balance = Params.CoinPositionDict[keys[i]].balance.ToString();
-                    var locked = Params.CoinPositionDict[keys[i]].locked.ToString();
-                    var avg_buy_price = Params.CoinPositionDict[keys[i]].avg_buy_price.ToString();
-                    var cur_price = Params.CoinPositionDict[keys[i]].cur_price.ToString();
+                    var currency = Result[i].GetValue("currency").ToString().Trim();
+                    var balance = Result[i].GetValue("balance").ToString().Trim();
+                    var locked = Result[i].GetValue("locked").ToString().Trim();
+                    var avg_buy_price = Result[i].GetValue("avg_buy_price").ToString().Trim();
+                    var cur_price = "0.0";
 
-                    if (currency == "KRW") cash = double.Parse(balance);
+                    string code = $"KRW-{currency}";
+
+                    if (code.Substring(0,3) == "KRW") cash = double.Parse(balance);
 
                     //string[] codes = currency.Split('-');
-                    string code = $"KRW-{currency}";
+                    //string code = $"KRW-{currency}";
                     if (Params.CoinInfoDict.Count != 0)
                     {
                         if (Params.CoinInfoDict.ContainsKey(code))
@@ -637,28 +600,10 @@ namespace CoinGo
 
                     var rate = $"{Math.Round(((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100, 2)} %";
                     var tradingPnL = $"{Math.Round((double.Parse(cur_price) - double.Parse(avg_buy_price)) * double.Parse(balance), 2)} 원";
-                    //var unit_currency = Result[i].GetValue("unit_currency").ToString().Trim();
 
-                    // 매도 주문
-                    if (((((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 > 1.0 ||
-                        ((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 < -1.5) &&
-                        (currency != "BORA" && currency != "HUM") &&
-                        double.Parse(cur_price) > 0.0) || Params.ForcedSell[code])
+                    // Display Position Func
+                    DisplayTargetCoins(code, balance, avg_buy_price, cur_price, rate, tradingPnL);
 
-                    {
-                        var result = Params.upbit.MakeOrder(market: code, side: UpbitAPI.UpbitOrderSide.ask, volume: Convert.ToDecimal(balance), ord_type: UpbitAPI.UpbitOrderType.market);
-                        Params.CoinPositionDict.Remove(currency);
-                        DeletePositionGrid(currency);
-                        UpdatePosition();
-                    }
-
-                    else
-                    {
-                        Params.CoinPositionDict[currency].cur_price = cur_price;
-
-                        // Display Position Func
-                        DisplayTargetCoins(currency, balance, avg_buy_price, cur_price, rate, tradingPnL);
-                    }
 
                     Params.TotalAsset = Params.TotalAsset + double.Parse(balance) * double.Parse(cur_price);
                     Params.CoinAsset = Params.CoinAsset + double.Parse(balance) * double.Parse(cur_price);
@@ -707,60 +652,6 @@ namespace CoinGo
             SendWebSocket(sendOrderbookMsg);
 
         }
-
-
-        // Chart
-        /*
-        public void ChartAxisChanged(object sender, ViewEventArgs e)
-        {
-            if (sender.Equals(Candle_Chart))
-            {
-                int startPosition = (int)e.Axis.ScaleView.ViewMinimum;
-                int endPosition = (int)e.Axis.ScaleView.ViewMaximum;
-                double min = (double)e.ChartArea.AxisY.ScaleView.ViewMinimum;
-                double max = (double)e.ChartArea.AxisY.ScaleView.ViewMaximum;
-
-                for (int i = startPosition - 1; i < endPosition - 1; i++)
-                {
-                    if (i > 200) break;
-                    if (i < 0) i = 0;
-
-                    if (double.Parse(Params.CandleDict[Orderbook_ShortCode].high_price[i]) > max)
-                    {
-                        max = double.Parse(Params.CandleDict[Orderbook_ShortCode].high_price[i]) + 2;
-                    }
-                    if (double.Parse(Params.CandleDict[Orderbook_ShortCode].low_price[i]) < min)
-                    {
-                        min = double.Parse(Params.CandleDict[Orderbook_ShortCode].low_price[i]) - 2;
-                    }
-                }
-
-                Candle_Chart.ChartAreas[0].AxisY.Maximum = max;
-                Candle_Chart.ChartAreas[0].AxisY.Minimum = min;
-
-            }
-        }
-
-        public void CreateCandleChart()
-        {
-
-            Candle_Chart.Series["S_candle1"].Points.Clear();
-
-            Candle_Chart.ChartAreas[0].AxisY.Maximum = Params.CandleDict[Orderbook_ShortCode].high_price.Select(f => double.Parse(f)).ToList().Max();
-            Candle_Chart.ChartAreas[0].AxisY.Minimum = Params.CandleDict[Orderbook_ShortCode].low_price.Select(f => double.Parse(f)).ToList().Min();
-
-            for (int i = 0; i < Params.CandleDict[Orderbook_ShortCode].code.Count; i++)
-            {
-                Candle_Chart.Series["S_candle1"].Points.AddXY(Params.CandleDict[Orderbook_ShortCode].date_time[i],
-                                                             double.Parse(Params.CandleDict[Orderbook_ShortCode].high_price[i]));
-                Candle_Chart.Series["S_candle1"].Points[i].YValues[1] = double.Parse(Params.CandleDict[Orderbook_ShortCode].low_price[i]);
-                Candle_Chart.Series["S_candle1"].Points[i].YValues[2] = double.Parse(Params.CandleDict[Orderbook_ShortCode].opening_price[i]);
-                Candle_Chart.Series["S_candle1"].Points[i].YValues[3] = double.Parse(Params.CandleDict[Orderbook_ShortCode].trade_price[i]);
-
-            }
-        }
-
-        */
 
         public void write_sys_log(String text, int is_Clear)
         {
