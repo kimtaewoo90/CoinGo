@@ -586,7 +586,11 @@ namespace CoinGo
 
                     string code = $"KRW-{currency}";
 
-                    if (code.Substring(0,3) == "KRW") cash = double.Parse(balance);
+                    if (currency == "KRW")
+                    {
+                        cash = double.Parse(balance);
+                        code = "Cash";
+                    }
 
                     //string[] codes = currency.Split('-');
                     //string code = $"KRW-{currency}";

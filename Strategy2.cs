@@ -100,7 +100,7 @@ namespace CoinGo
 
             if (Params.Avg_Volume_Now_Candle[ticker].Sum() > Params.Avg_Volume_Before_20_Candle[ticker] * 5 &&
                 double.Parse(res["signed_change_price"].ToString()) > 0 &&
-                Params.Avg_Volume_Now_Candle[ticker].Sum() > 50000000000 &&
+                Params.Avg_Volume_Now_Candle[ticker].Sum() > 4000000000 &&  // 500억 => 40억 (1분봉 내 40억 거래대금)
                 Params.Avg_Volume_Now_Candle[ticker].Count > 180)
             {
                 signal = true;                
