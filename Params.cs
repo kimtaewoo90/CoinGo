@@ -10,6 +10,7 @@ namespace CoinGo
     public static class Params
     {
         public static string CurTime { get; set; }
+        public static DateTime cur_time { get; set; }
 
         public readonly static string AccessKey = "yTg9B5SL2BYgQxTed5LVbuVs7gXPa2czy7xDDx5m"; //발급받은 AccessKey를 넣어줍니다.
         public readonly static string SecretKey = "dxzr3r5KcJTxMkVCrFefWzhluFWPxdS1MDtAzKk5"; //발급받은 SecretKey를 넣어줍니다.
@@ -66,7 +67,12 @@ namespace CoinGo
         public static Dictionary<string, bool> Is_Start_Strategy2 = new Dictionary<string, bool>();
         public static Dictionary<string, double> Avg_Volume_Before_20_Candle = new Dictionary<string, double>();
         public static Dictionary<string, List<double>> Avg_Volume_Now_Candle = new Dictionary<string, List<double>>();
+        public static Dictionary<string, List<double>> Avg_Price_Now_Candle = new Dictionary<string, List<double>>();
+
         public static Dictionary<string, string> Candle_Time = new Dictionary<string, string>();
+
+        public static Dictionary<string, double> BuySignalRatio = new Dictionary<string, double>();
+        public static Dictionary<string, double> SellSignalRatio = new Dictionary<string, double>();
 
         public static List<string> Oppertunity = new List<string>();
     }

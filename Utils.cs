@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CoinGo
 {
-    class Utils
+    public class Utils
     {
         public string get_cur_tm()
         {

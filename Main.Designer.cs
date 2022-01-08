@@ -93,6 +93,8 @@ namespace CoinGo
             this.curPrice_position = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.rate = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tradingPnL = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.buyRatio = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.sellRatio = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.TabControl.SuspendLayout();
             this.MarketUniverse.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.OrderbookDataGrid)).BeginInit();
@@ -119,7 +121,7 @@ namespace CoinGo
             this.TabControl.Location = new System.Drawing.Point(22, 237);
             this.TabControl.Name = "TabControl";
             this.TabControl.SelectedIndex = 0;
-            this.TabControl.Size = new System.Drawing.Size(825, 706);
+            this.TabControl.Size = new System.Drawing.Size(949, 706);
             this.TabControl.TabIndex = 0;
             // 
             // MarketUniverse
@@ -130,7 +132,7 @@ namespace CoinGo
             this.MarketUniverse.Location = new System.Drawing.Point(4, 22);
             this.MarketUniverse.Name = "MarketUniverse";
             this.MarketUniverse.Padding = new System.Windows.Forms.Padding(3);
-            this.MarketUniverse.Size = new System.Drawing.Size(817, 680);
+            this.MarketUniverse.Size = new System.Drawing.Size(941, 680);
             this.MarketUniverse.TabIndex = 0;
             this.MarketUniverse.Text = "Market";
             this.MarketUniverse.UseVisualStyleBackColor = true;
@@ -139,7 +141,7 @@ namespace CoinGo
             // 
             this.Orderbook_Code.AutoSize = true;
             this.Orderbook_Code.Font = new System.Drawing.Font("굴림", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.Orderbook_Code.Location = new System.Drawing.Point(465, 6);
+            this.Orderbook_Code.Location = new System.Drawing.Point(627, 3);
             this.Orderbook_Code.Name = "Orderbook_Code";
             this.Orderbook_Code.Size = new System.Drawing.Size(154, 27);
             this.Orderbook_Code.TabIndex = 2;
@@ -152,10 +154,11 @@ namespace CoinGo
             this.Orderbook_AskPrice,
             this.Orderbook_Price,
             this.Orderbook_Bid});
-            this.OrderbookDataGrid.Location = new System.Drawing.Point(465, 36);
+            this.OrderbookDataGrid.Location = new System.Drawing.Point(632, 36);
             this.OrderbookDataGrid.Name = "OrderbookDataGrid";
+            this.OrderbookDataGrid.RowHeadersVisible = false;
             this.OrderbookDataGrid.RowTemplate.Height = 23;
-            this.OrderbookDataGrid.Size = new System.Drawing.Size(343, 638);
+            this.OrderbookDataGrid.Size = new System.Drawing.Size(303, 638);
             this.OrderbookDataGrid.TabIndex = 1;
             // 
             // Orderbook_AskPrice
@@ -180,15 +183,19 @@ namespace CoinGo
             this.ticker,
             this.curPrice,
             this.change,
-            this.volume});
+            this.volume,
+            this.buyRatio,
+            this.sellRatio});
             this.UniverseDataGrid.Location = new System.Drawing.Point(6, 9);
             this.UniverseDataGrid.Name = "UniverseDataGrid";
             this.UniverseDataGrid.ReadOnly = true;
+            this.UniverseDataGrid.RowHeadersVisible = false;
             this.UniverseDataGrid.RowTemplate.Height = 23;
-            this.UniverseDataGrid.Size = new System.Drawing.Size(453, 665);
+            this.UniverseDataGrid.Size = new System.Drawing.Size(603, 665);
             this.UniverseDataGrid.TabIndex = 0;
             this.UniverseDataGrid.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.UniverseDataGrid_CellMouseClick);
             this.UniverseDataGrid.CellMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.UniverseDataGrid_CellMouseDoubleClick);
+            this.UniverseDataGrid.SortCompare += new System.Windows.Forms.DataGridViewSortCompareEventHandler(this.UniverseDataGrid_SortCompare);
             // 
             // ticker
             // 
@@ -360,7 +367,7 @@ namespace CoinGo
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.BLT_DataGridView);
-            this.groupBox1.Location = new System.Drawing.Point(853, 41);
+            this.groupBox1.Location = new System.Drawing.Point(977, 41);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(709, 608);
             this.groupBox1.TabIndex = 9;
@@ -495,7 +502,7 @@ namespace CoinGo
             this.groupBox2.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.groupBox2.Location = new System.Drawing.Point(22, 77);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(818, 154);
+            this.groupBox2.Size = new System.Drawing.Size(945, 154);
             this.groupBox2.TabIndex = 8;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "자산현황";
@@ -558,7 +565,7 @@ namespace CoinGo
             this.groupBox3.Controls.Add(this.Chart_check);
             this.groupBox3.Location = new System.Drawing.Point(26, 23);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(817, 48);
+            this.groupBox3.Size = new System.Drawing.Size(941, 48);
             this.groupBox3.TabIndex = 10;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Options";
@@ -610,9 +617,9 @@ namespace CoinGo
             // groupBox4
             // 
             this.groupBox4.Controls.Add(this.positionDataGrid);
-            this.groupBox4.Location = new System.Drawing.Point(856, 655);
+            this.groupBox4.Location = new System.Drawing.Point(980, 652);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(624, 281);
+            this.groupBox4.Size = new System.Drawing.Size(706, 291);
             this.groupBox4.TabIndex = 11;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Position";
@@ -632,7 +639,7 @@ namespace CoinGo
             this.positionDataGrid.Name = "positionDataGrid";
             this.positionDataGrid.RowHeadersVisible = false;
             this.positionDataGrid.RowTemplate.Height = 23;
-            this.positionDataGrid.Size = new System.Drawing.Size(618, 261);
+            this.positionDataGrid.Size = new System.Drawing.Size(700, 271);
             this.positionDataGrid.TabIndex = 1;
             // 
             // code
@@ -664,6 +671,18 @@ namespace CoinGo
             // 
             this.tradingPnL.HeaderText = "수익(\\)";
             this.tradingPnL.Name = "tradingPnL";
+            // 
+            // buyRatio
+            // 
+            this.buyRatio.HeaderText = "매수비율";
+            this.buyRatio.Name = "buyRatio";
+            this.buyRatio.ReadOnly = true;
+            // 
+            // sellRatio
+            // 
+            this.sellRatio.HeaderText = "매도비율";
+            this.sellRatio.Name = "sellRatio";
+            this.sellRatio.ReadOnly = true;
             // 
             // Main
             // 
@@ -767,6 +786,8 @@ namespace CoinGo
         private System.Windows.Forms.DataGridViewTextBoxColumn curPrice_position;
         private System.Windows.Forms.DataGridViewTextBoxColumn rate;
         private System.Windows.Forms.DataGridViewTextBoxColumn tradingPnL;
+        private System.Windows.Forms.DataGridViewTextBoxColumn buyRatio;
+        private System.Windows.Forms.DataGridViewTextBoxColumn sellRatio;
     }
 }
 
