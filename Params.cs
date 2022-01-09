@@ -29,6 +29,7 @@ namespace CoinGo
         public static Dictionary<string, double> TotalTradedPriceAtBoughtTime = new Dictionary<string, double>();
         public static Dictionary<string, double> LatestCandleVolume = new Dictionary<string, double>();
         public static Dictionary<string, bool> ForcedSell = new Dictionary<string, bool>();
+        public static Dictionary<string, DateTime> FilledTime = new Dictionary<string, DateTime>();
 
         // Coin
         public static Dictionary<string, CoinState> CoinInfoDict = new Dictionary<string, CoinState>();

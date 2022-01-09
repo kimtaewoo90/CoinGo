@@ -41,6 +41,8 @@ namespace CoinGo
             this.curPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.change = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.volume = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.buyRatio = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.sellRatio = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Blotter = new System.Windows.Forms.TabPage();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.BLT_OrderCoinCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -93,8 +95,7 @@ namespace CoinGo
             this.curPrice_position = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.rate = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tradingPnL = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.buyRatio = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.sellRatio = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.maxRatio = new System.Windows.Forms.TextBox();
             this.TabControl.SuspendLayout();
             this.MarketUniverse.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.OrderbookDataGrid)).BeginInit();
@@ -221,13 +222,25 @@ namespace CoinGo
             this.volume.Name = "volume";
             this.volume.ReadOnly = true;
             // 
+            // buyRatio
+            // 
+            this.buyRatio.HeaderText = "매수비율";
+            this.buyRatio.Name = "buyRatio";
+            this.buyRatio.ReadOnly = true;
+            // 
+            // sellRatio
+            // 
+            this.sellRatio.HeaderText = "매도비율";
+            this.sellRatio.Name = "sellRatio";
+            this.sellRatio.ReadOnly = true;
+            // 
             // Blotter
             // 
             this.Blotter.Controls.Add(this.dataGridView1);
             this.Blotter.Location = new System.Drawing.Point(4, 22);
             this.Blotter.Name = "Blotter";
             this.Blotter.Padding = new System.Windows.Forms.Padding(3);
-            this.Blotter.Size = new System.Drawing.Size(817, 680);
+            this.Blotter.Size = new System.Drawing.Size(941, 680);
             this.Blotter.TabIndex = 1;
             this.Blotter.Text = "Blotter";
             this.Blotter.UseVisualStyleBackColor = true;
@@ -247,7 +260,7 @@ namespace CoinGo
             this.dataGridView1.Location = new System.Drawing.Point(3, 3);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowTemplate.Height = 23;
-            this.dataGridView1.Size = new System.Drawing.Size(811, 674);
+            this.dataGridView1.Size = new System.Drawing.Size(935, 674);
             this.dataGridView1.TabIndex = 0;
             // 
             // BLT_OrderCoinCode
@@ -291,7 +304,7 @@ namespace CoinGo
             this.Position.Location = new System.Drawing.Point(4, 22);
             this.Position.Name = "Position";
             this.Position.Padding = new System.Windows.Forms.Padding(3);
-            this.Position.Size = new System.Drawing.Size(817, 680);
+            this.Position.Size = new System.Drawing.Size(941, 680);
             this.Position.TabIndex = 2;
             this.Position.Text = "Position";
             this.Position.UseVisualStyleBackColor = true;
@@ -310,7 +323,7 @@ namespace CoinGo
             this.positionDataGrid_archive.Location = new System.Drawing.Point(3, 3);
             this.positionDataGrid_archive.Name = "positionDataGrid_archive";
             this.positionDataGrid_archive.RowTemplate.Height = 23;
-            this.positionDataGrid_archive.Size = new System.Drawing.Size(811, 674);
+            this.positionDataGrid_archive.Size = new System.Drawing.Size(935, 674);
             this.positionDataGrid_archive.TabIndex = 0;
             // 
             // Code_archive
@@ -349,7 +362,7 @@ namespace CoinGo
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage4.Size = new System.Drawing.Size(817, 680);
+            this.tabPage4.Size = new System.Drawing.Size(941, 680);
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "Logs";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -489,6 +502,7 @@ namespace CoinGo
             // groupBox2
             // 
             this.groupBox2.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.groupBox2.Controls.Add(this.maxRatio);
             this.groupBox2.Controls.Add(this.PnL_Change);
             this.groupBox2.Controls.Add(this.PnL);
             this.groupBox2.Controls.Add(this.Coin_Asset);
@@ -672,17 +686,12 @@ namespace CoinGo
             this.tradingPnL.HeaderText = "수익(\\)";
             this.tradingPnL.Name = "tradingPnL";
             // 
-            // buyRatio
+            // maxRatio
             // 
-            this.buyRatio.HeaderText = "매수비율";
-            this.buyRatio.Name = "buyRatio";
-            this.buyRatio.ReadOnly = true;
-            // 
-            // sellRatio
-            // 
-            this.sellRatio.HeaderText = "매도비율";
-            this.sellRatio.Name = "sellRatio";
-            this.sellRatio.ReadOnly = true;
+            this.maxRatio.Location = new System.Drawing.Point(839, 123);
+            this.maxRatio.Name = "maxRatio";
+            this.maxRatio.Size = new System.Drawing.Size(100, 21);
+            this.maxRatio.TabIndex = 13;
             // 
             // Main
             // 
@@ -788,6 +797,7 @@ namespace CoinGo
         private System.Windows.Forms.DataGridViewTextBoxColumn tradingPnL;
         private System.Windows.Forms.DataGridViewTextBoxColumn buyRatio;
         private System.Windows.Forms.DataGridViewTextBoxColumn sellRatio;
+        private System.Windows.Forms.TextBox maxRatio;
     }
 }
 
