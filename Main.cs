@@ -109,18 +109,28 @@ namespace CoinGo
             // Market Rtd data.
             if (res["type"].ToString() == "ticker")
             {
+                // 로스컷 x번이면 종료
+                if(Params.LosscutTimes == 3)
+                {
+                    Application.ExitThread();
+                    Environment.Exit(0);
+                }
+
                 var code = res["code"].ToString();
 
                 CoinState state = new CoinState(res);
                 Params.CoinInfoDict[code] = state;
 
+                // Max Ratio display
                 if (Params.BuySignalRatio.ContainsKey(code))
                 {
-                    if (UniverseDataGrid.InvokeRequired)
+                    if (maxRatio.InvokeRequired)
                     {
-                        UniverseDataGrid.Invoke(new MethodInvoker(delegate ()
+                        maxRatio.Invoke(new MethodInvoker(delegate ()
                         {
                             maxRatio.Text = code;
+                            profitTimes.Text = Params.ProfitTimes.ToString();
+                            LosscutTimes.Text = Params.LosscutTimes.ToString();
                         }));
                     }
                     else
@@ -128,7 +138,6 @@ namespace CoinGo
                         maxRatio.Text = code;
                     }
                 }
-
 
                     // update position coin's cur_price
                     if (Params.CoinPositionDict.ContainsKey(code))
@@ -224,13 +233,14 @@ namespace CoinGo
 
                             if (buy_signal is true)
                             {
+                                // BuyRatio 최댓값일 때 매수 시도
                                 if (code == Params.BuySignalRatio.Aggregate((x, y) => x.Value > y.Value ? x : y).Key)
                                 {
                                     var result = strategy2.SendLongOrder();
 
                                     if (result != "")
                                     {
-                                        UpdatePosition();
+                                        //UpdatePosition();
                                         write_sys_log($"Bought {code} Coin", 0);
                                     }
                                 }
@@ -277,7 +287,7 @@ namespace CoinGo
 
             }
 
-            else if (res["type"].ToString() == "trade")
+            else if (res["type"].ToString() == "trades")
             {
                 var code = res["code"].ToString();
 
@@ -539,7 +549,7 @@ namespace CoinGo
             }
         }
 
-        public void DisplayTargetCoins(string currency, string balance, string buy_price, string cur_price, string rate, string pnl)
+        public void DisplayTargetCoins(string currency, string balance, string buy_price, string cur_price, string rate, string pnl, string filledTime)
         {
 
 
@@ -564,6 +574,7 @@ namespace CoinGo
                                 row.Cells["curPrice_position"].Value = String.Format("{0:0,0}", cur_price);
                                 row.Cells["rate"].Value = rate;
                                 row.Cells["tradingPnL"].Value = String.Format("{0:0,0}", pnl);
+                                row.Cells["filledTime"].Value = filledTime;
                                 return;
                             }
                         }
@@ -573,7 +584,8 @@ namespace CoinGo
                                                   String.Format("{0:0,0}", buy_price),
                                                   String.Format("{0:0,0}", cur_price),
                                                   rate,
-                                                  String.Format("{0:0,0}", pnl));
+                                                  String.Format("{0:0,0}", pnl),
+                                                  filledTime);
                     }
 
                     else positionDataGrid.Rows.Add(String.Format("{0:0,0}", currency),
@@ -581,7 +593,9 @@ namespace CoinGo
                                                     String.Format("{0:0,0}", buy_price),
                                                     String.Format("{0:0,0}", cur_price),
                                                     rate,
-                                                    String.Format("{0:0,0}", pnl));
+                                                    String.Format("{0:0,0}", pnl),
+                                                    filledTime
+                                                    );
 
 
                 }));
@@ -605,6 +619,8 @@ namespace CoinGo
                             row.Cells["curPrice_position"].Value = String.Format("{0:0,0}", cur_price);
                             row.Cells["rate"].Value = rate;
                             row.Cells["tradingPnL"].Value = String.Format("{0:0,0}", pnl);
+                            row.Cells["filledTime"].Value = filledTime;
+
                             return;
                         }
                     }
@@ -614,7 +630,8 @@ namespace CoinGo
                                               String.Format("{0:0,0}", buy_price),
                                               String.Format("{0:0,0}", cur_price),
                                               rate,
-                                              String.Format("{0:0,0}", pnl));
+                                              String.Format("{0:0,0}", pnl),
+                                              filledTime);
                 }
 
                 else positionDataGrid.Rows.Add(String.Format("{0:0,0}", currency),
@@ -622,7 +639,9 @@ namespace CoinGo
                                                 String.Format("{0:0,0}", buy_price),
                                                 String.Format("{0:0,0}", cur_price),
                                                 rate,
-                                                String.Format("{0:0,0}", pnl));
+                                                String.Format("{0:0,0}", pnl),
+                                                filledTime
+                                                );
             }
         }
 
@@ -725,6 +744,7 @@ namespace CoinGo
                         var locked = Result[i].GetValue("locked").ToString().Trim();
                         var avg_buy_price = Result[i].GetValue("avg_buy_price").ToString().Trim();
                         var cur_price = "0.0";
+                        var filledTime = "";
 
                         string code = $"KRW-{currency}";
 
@@ -733,6 +753,8 @@ namespace CoinGo
                             cash = double.Parse(balance);
                             code = "Cash";
                         }
+
+                        if(Params.FilledTime.ContainsKey(code))  filledTime = Params.FilledTime[code].ToString();
 
                         if (Params.CoinInfoDict.Count != 0)
                         {
@@ -751,7 +773,7 @@ namespace CoinGo
 
 
                         // Display Position Func
-                        DisplayTargetCoins(code, balance, avg_buy_price, cur_price, rate, tradingPnL);
+                        DisplayTargetCoins(code, balance, avg_buy_price, cur_price, rate, tradingPnL, filledTime);
 
 
                         Params.TotalAsset = Params.TotalAsset + double.Parse(balance) * double.Parse(cur_price);

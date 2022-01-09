@@ -77,6 +77,7 @@ namespace CoinGo
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.maxRatio = new System.Windows.Forms.TextBox();
             this.PnL_Change = new System.Windows.Forms.Label();
             this.PnL = new System.Windows.Forms.Label();
             this.Coin_Asset = new System.Windows.Forms.Label();
@@ -95,7 +96,12 @@ namespace CoinGo
             this.curPrice_position = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.rate = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tradingPnL = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.maxRatio = new System.Windows.Forms.TextBox();
+            this.filledTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.profitTimes = new System.Windows.Forms.TextBox();
+            this.LosscutTimes = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
             this.TabControl.SuspendLayout();
             this.MarketUniverse.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.OrderbookDataGrid)).BeginInit();
@@ -483,7 +489,7 @@ namespace CoinGo
             // 
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("굴림", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.label4.Location = new System.Drawing.Point(374, 84);
+            this.label4.Location = new System.Drawing.Point(286, 84);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(82, 24);
             this.label4.TabIndex = 6;
@@ -493,7 +499,7 @@ namespace CoinGo
             // 
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("굴림", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.label5.Location = new System.Drawing.Point(374, 123);
+            this.label5.Location = new System.Drawing.Point(286, 123);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(82, 24);
             this.label5.TabIndex = 7;
@@ -502,7 +508,6 @@ namespace CoinGo
             // groupBox2
             // 
             this.groupBox2.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.groupBox2.Controls.Add(this.maxRatio);
             this.groupBox2.Controls.Add(this.PnL_Change);
             this.groupBox2.Controls.Add(this.PnL);
             this.groupBox2.Controls.Add(this.Coin_Asset);
@@ -516,16 +521,23 @@ namespace CoinGo
             this.groupBox2.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.groupBox2.Location = new System.Drawing.Point(22, 77);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(945, 154);
+            this.groupBox2.Size = new System.Drawing.Size(643, 154);
             this.groupBox2.TabIndex = 8;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "자산현황";
+            // 
+            // maxRatio
+            // 
+            this.maxRatio.Location = new System.Drawing.Point(874, 151);
+            this.maxRatio.Name = "maxRatio";
+            this.maxRatio.Size = new System.Drawing.Size(100, 21);
+            this.maxRatio.TabIndex = 13;
             // 
             // PnL_Change
             // 
             this.PnL_Change.AutoSize = true;
             this.PnL_Change.Font = new System.Drawing.Font("굴림", 10F);
-            this.PnL_Change.Location = new System.Drawing.Point(485, 133);
+            this.PnL_Change.Location = new System.Drawing.Point(389, 133);
             this.PnL_Change.Name = "PnL_Change";
             this.PnL_Change.Size = new System.Drawing.Size(15, 14);
             this.PnL_Change.TabIndex = 12;
@@ -535,7 +547,7 @@ namespace CoinGo
             // 
             this.PnL.AutoSize = true;
             this.PnL.Font = new System.Drawing.Font("굴림", 10F);
-            this.PnL.Location = new System.Drawing.Point(485, 94);
+            this.PnL.Location = new System.Drawing.Point(389, 94);
             this.PnL.Name = "PnL";
             this.PnL.Size = new System.Drawing.Size(15, 14);
             this.PnL.TabIndex = 11;
@@ -647,7 +659,8 @@ namespace CoinGo
             this.buyPrice,
             this.curPrice_position,
             this.rate,
-            this.tradingPnL});
+            this.tradingPnL,
+            this.filledTime});
             this.positionDataGrid.Dock = System.Windows.Forms.DockStyle.Fill;
             this.positionDataGrid.Location = new System.Drawing.Point(3, 17);
             this.positionDataGrid.Name = "positionDataGrid";
@@ -686,18 +699,63 @@ namespace CoinGo
             this.tradingPnL.HeaderText = "수익(\\)";
             this.tradingPnL.Name = "tradingPnL";
             // 
-            // maxRatio
+            // filledTime
             // 
-            this.maxRatio.Location = new System.Drawing.Point(839, 123);
-            this.maxRatio.Name = "maxRatio";
-            this.maxRatio.Size = new System.Drawing.Size(100, 21);
-            this.maxRatio.TabIndex = 13;
+            this.filledTime.HeaderText = "매수시간";
+            this.filledTime.Name = "filledTime";
+            // 
+            // profitTimes
+            // 
+            this.profitTimes.Location = new System.Drawing.Point(874, 178);
+            this.profitTimes.Name = "profitTimes";
+            this.profitTimes.Size = new System.Drawing.Size(100, 21);
+            this.profitTimes.TabIndex = 14;
+            // 
+            // LosscutTimes
+            // 
+            this.LosscutTimes.Location = new System.Drawing.Point(874, 205);
+            this.LosscutTimes.Name = "LosscutTimes";
+            this.LosscutTimes.Size = new System.Drawing.Size(100, 21);
+            this.LosscutTimes.TabIndex = 15;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(795, 181);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(73, 12);
+            this.label6.TabIndex = 16;
+            this.label6.Text = "Profit Times";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(778, 208);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(90, 12);
+            this.label7.TabIndex = 17;
+            this.label7.Text = "Losscut Times";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(806, 154);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(62, 12);
+            this.label8.TabIndex = 18;
+            this.label8.Text = "Max Ratio";
             // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1698, 955);
+            this.Controls.Add(this.label8);
+            this.Controls.Add(this.label7);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.LosscutTimes);
+            this.Controls.Add(this.profitTimes);
+            this.Controls.Add(this.maxRatio);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
@@ -726,6 +784,7 @@ namespace CoinGo
             this.groupBox4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.positionDataGrid)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -798,6 +857,12 @@ namespace CoinGo
         private System.Windows.Forms.DataGridViewTextBoxColumn buyRatio;
         private System.Windows.Forms.DataGridViewTextBoxColumn sellRatio;
         private System.Windows.Forms.TextBox maxRatio;
+        private System.Windows.Forms.DataGridViewTextBoxColumn filledTime;
+        private System.Windows.Forms.TextBox profitTimes;
+        private System.Windows.Forms.TextBox LosscutTimes;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label label8;
     }
 }
 

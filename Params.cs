@@ -19,6 +19,9 @@ namespace CoinGo
 
         public static string Orderbook_ShortCode { get; set; } = "KRW-BTC";
         public static List<string> MarketTickers = new List<string>();
+        public static int ProfitTimes { get; set; } = 0;
+        public static int LosscutTimes { get; set; } = 0;
+
 
         // Display functions
         public static bool IsDisplayPosition { get; set; } = false;
