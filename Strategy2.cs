@@ -150,7 +150,7 @@ namespace CoinGo
             // 매도 주문
             if (
                 (((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 > 2.0 || (((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 < -1.5)) &&
-                ((ticker.Substring(4, ticker.Length - 4) != "BORA" && ticker.Substring(4, ticker.Length - 4) != "HUM") &&
+                ((ticker.Substring(4, ticker.Length - 4) != "BORA" && ticker.Substring(4, ticker.Length - 4) != "HUM" && ticker.Substring(4, ticker.Length - 4) != "BTT"  ) &&
                 double.Parse(cur_price) > 0.0))
             {
                 if (((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 > 2.0) Params.ProfitTimes += 1;
