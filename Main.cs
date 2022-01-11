@@ -33,6 +33,8 @@ namespace CoinGo
         public Main()
         {
             InitializeComponent();
+
+            ExitProgramBtn.Click += ExitProgramBtnClicked;
             CoinStart();
         }
 
@@ -112,8 +114,14 @@ namespace CoinGo
                 // 로스컷 x번이면 종료
                 if(Params.LosscutTimes == 3)
                 {
-                    Application.ExitThread();
-                    Environment.Exit(0);
+                    if(MessageBox.Show("정말 종료합니까?", "YesOrNo", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                    {
+                        ExitProgram();
+                    }
+                    else
+                    {
+                        Params.LosscutTimes = 0;
+                    }
                 }
 
                 var code = res["code"].ToString();
@@ -122,13 +130,14 @@ namespace CoinGo
                 Params.CoinInfoDict[code] = state;
 
                 // Max Ratio display
-                if (Params.BuySignalRatio.ContainsKey(code))
+                if (Params.Avg_Price_Now_Candle.ContainsKey(code))
                 {
                     if (maxRatio.InvokeRequired)
                     {
                         maxRatio.Invoke(new MethodInvoker(delegate ()
                         {
-                            maxRatio.Text = code;
+                            var max_ratio = Params.Avg_Price_Now_Candle.Aggregate((x, y) => x.Value.Sum() > y.Value.Sum() ? x : y).Key;
+                            maxRatio.Text = max_ratio;
                             profitTimes.Text = Params.ProfitTimes.ToString();
                             LosscutTimes.Text = Params.LosscutTimes.ToString();
                         }));
@@ -169,6 +178,7 @@ namespace CoinGo
 
                         #region Main Logic
 
+                        // Initialize Candle Chart
                         if (Params.Is_Start_Strategy2[code] is true)
                         {
                             // Request candle data
@@ -178,6 +188,22 @@ namespace CoinGo
 
                         else
                         {
+                            // 로스컷 한 코인은 한시간 동안 Pass
+                            if (Params.LosscutCode.ContainsKey(code))
+                            {
+                                // 1시간 지나면 LosscutCode Dictionary 에서 삭제
+                                if(DateTime.Compare(Params.LosscutCode[code].AddHours(1), DateTime.Now) < 0)
+                                {
+                                    Params.LosscutCode.Remove(code);
+                                }
+
+                                // 1시간 안지났으면 그냥 pass
+                                else
+                                {
+                                    return;
+                                }
+                            }
+
                             var tradedTime = res["trade_date"].ToString() + res["trade_time"].ToString();
                             DateTime temp = DateTime.ParseExact(tradedTime, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
                             temp = temp.AddHours(9);
@@ -199,6 +225,7 @@ namespace CoinGo
                                 // 새로운 캔들봉 요청하기
                                 strategy2.Get_Avg_Volume_Before_Candle();
 
+                                /*
                                 // 매수 후 거래량이 줄어들 때 강제 매도
                                 if (Params.TotalTradedPriceAtBoughtTime.ContainsKey(code))
                                 {
@@ -207,6 +234,7 @@ namespace CoinGo
                                         Params.ForcedSell[code] = true;
                                     }
                                 }
+                                */
 
                                 return;
                             }
@@ -227,14 +255,15 @@ namespace CoinGo
 
                         #endregion Main Logic
 
-                        if (!Params.CoinPositionDict.ContainsKey(code))
+                        if (!Params.CoinPositionDict.ContainsKey(code) &&    // 현재 보유중인 코인은 매수 안함
+                            !Params.LosscutCode.ContainsKey(code))           // 로스컷 한 코인은 1시간동안 매매 안함.
                         {
                             var buy_signal = strategy2.RequestLongSignal();
 
                             if (buy_signal is true)
                             {
                                 // BuyRatio 최댓값일 때 매수 시도
-                                if (code == Params.BuySignalRatio.Aggregate((x, y) => x.Value > y.Value ? x : y).Key)
+                                if (code == Params.Avg_Price_Now_Candle.Aggregate((x, y) => x.Value.Sum() > y.Value.Sum() ? x : y).Key || true)
                                 {
                                     var result = strategy2.SendLongOrder();
 
@@ -299,6 +328,9 @@ namespace CoinGo
         public void DisplayUniverseMarket(JObject res)
         {
             var code = res["code"].ToString();
+            var avgPrice = 0.0;
+            if(Params.Avg_Closed_Price.ContainsKey(code))
+                avgPrice = Params.Avg_Closed_Price[code];
             var curPrice = double.Parse(res["trade_price"].ToString());
             var openingPrice = double.Parse(res["opening_price"].ToString());
             var change = ((curPrice / openingPrice) - 1) * 100;
@@ -311,6 +343,9 @@ namespace CoinGo
 
             var sell_ratio = 0.0;
             if (Params.SellSignalRatio.ContainsKey(code)) sell_ratio = Params.SellSignalRatio[code];
+
+            var losscutTime = "";
+            if(Params.LosscutCode.ContainsKey(code))  losscutTime = Params.LosscutCode[code].ToString();
 
             // Sorting by buy_ratio
             //UniverseDataGrid.Columns["buyRatio"].ValueType = typeof(double);
@@ -334,31 +369,34 @@ namespace CoinGo
                             if (row.Cells["ticker"].Value.ToString() == code || row.Cells["ticker"].Value == null)
                             {
                                 row.Cells["ticker"].Value = code;
+                                row.Cells["avgPrice"].Value = String.Format("{0:0,0}", avgPrice);
                                 row.Cells["curPrice"].Value = String.Format("{0:0,0}", curPrice);
                                 if (change > 0) row.Cells["change"].Style.ForeColor = Color.Red;
                                 else row.Cells["change"].Style.ForeColor = Color.Blue;
                                 row.Cells["change"].Value = String.Format("{0:0.#}", change) + " %";
                                 row.Cells["volume"].Value = String.Format("{0:0,0}", volume);
                                 row.Cells["buyRatio"].Value = String.Format("{0:0.##}", buy_ratio);
-                                row.Cells["sellRatio"].Value = String.Format("{0:0.##}", sell_ratio);
+                                row.Cells["losscutTime"].Value = losscutTime;
                                 return;
                             }
                         }
 
                         UniverseDataGrid.Rows.Add(code,
                                                   String.Format("{0:0,0}", curPrice),
+                                                  String.Format("{0:0,0}", avgPrice),
                                                   String.Format("{0:0.#}", change) + " %",
                                                   String.Format("{0:0,0}", volume),
                                                   String.Format("{0:0.##}", buy_ratio),
-                                                  String.Format("{0:0.##}", sell_ratio));
+                                                  losscutTime);
                     }
 
                     else UniverseDataGrid.Rows.Add(code,
                                                     String.Format("{0:0,0}", curPrice),
+                                                    String.Format("{0:0,0}", avgPrice),
                                                     String.Format("{0:0.#}", change) + " %",
                                                     String.Format("{0:0,0}", volume),
                                                     String.Format("{0:0.##}", buy_ratio),
-                                                    String.Format("{0:0.##}", sell_ratio));
+                                                    losscutTime);
 
                 }));
             }
@@ -367,8 +405,8 @@ namespace CoinGo
             {
                 if (UniverseDataGrid.Rows.Count > 1)
                 {
-                    UniverseDataGrid.Sort(UniverseDataGrid.Columns["buyRatio"], ListSortDirection.Ascending);
-                    UniverseDataGrid.Columns["buyRatio"].ValueType = typeof(string);
+                   // UniverseDataGrid.Sort(UniverseDataGrid.Columns["buyRatio"], ListSortDirection.Ascending);
+                   // UniverseDataGrid.Columns["buyRatio"].ValueType = typeof(string);
 
                     foreach (DataGridViewRow row in UniverseDataGrid.Rows)
                     {
@@ -379,31 +417,34 @@ namespace CoinGo
                         if (row.Cells["ticker"].Value.ToString() == code || row.Cells["ticker"].Value == null)
                         {
                             row.Cells["ticker"].Value = code;
+                            row.Cells["avgPrice"].Value = String.Format("{0:0,0}", avgPrice);
                             row.Cells["curPrice"].Value = String.Format("{0:0,0}", curPrice);
                             if (change > 0) row.Cells["change"].Style.ForeColor = Color.Red;
                             else row.Cells["change"].Style.ForeColor = Color.Blue;
                             row.Cells["change"].Value = String.Format("{0:0.#}", change) + " %";
                             row.Cells["volume"].Value = String.Format("{0:0,0}", volume);
                             row.Cells["buyRatio"].Value = String.Format("{0:0,##}", buy_ratio);
-                            row.Cells["sellRatio"].Value = String.Format("{0:0,##}", sell_ratio);
+                            row.Cells["losscutTime"].Value = losscutTime;
                             return;
                         }
                     }
 
                     UniverseDataGrid.Rows.Add(code,
                                               String.Format("{0:0,0}", curPrice),
+                                              String.Format("{0:0,0}", avgPrice),
                                               String.Format("{0:0.#}", change) + " %",
                                               String.Format("{0:0,0}", volume),
                                               String.Format("{0:0,##}", buy_ratio),
-                                              String.Format("{0:0,##}", sell_ratio));
+                                                                        losscutTime);
                 }
 
                 else UniverseDataGrid.Rows.Add(code,
                           String.Format("{0:0,0}", curPrice),
+                          String.Format("{0:0,0}", avgPrice),
                           String.Format("{0:0.#}", change) + " %",
                           String.Format("{0:0,0}", volume),
                           String.Format("{0:0,##}", buy_ratio),
-                          String.Format("{0:0,##}", sell_ratio));
+                                                    losscutTime);
             }
         }
 
@@ -917,6 +958,20 @@ namespace CoinGo
         private void UniverseDataGrid_SortCompare(object sender, DataGridViewSortCompareEventArgs e)
         {
 
+        }
+
+        public void ExitProgram()
+        {
+            Application.ExitThread();
+            Environment.Exit(0);
+        }
+
+        public void ExitProgramBtnClicked(object sender, EventArgs e)
+        {
+            if(MessageBox.Show("정말 종료하시겠습니까?", "YesOrNo", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                ExitProgram();
+            }
         }
     }
 }

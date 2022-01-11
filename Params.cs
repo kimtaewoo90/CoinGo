@@ -22,6 +22,9 @@ namespace CoinGo
         public static int ProfitTimes { get; set; } = 0;
         public static int LosscutTimes { get; set; } = 0;
 
+        //public static List<string> LosscutCode = new List<string>();
+        public static Dictionary<string, DateTime> LosscutCode = new Dictionary<string, DateTime>();
+
 
         // Display functions
         public static bool IsDisplayPosition { get; set; } = false;
@@ -33,6 +36,7 @@ namespace CoinGo
         public static Dictionary<string, double> LatestCandleVolume = new Dictionary<string, double>();
         public static Dictionary<string, bool> ForcedSell = new Dictionary<string, bool>();
         public static Dictionary<string, DateTime> FilledTime = new Dictionary<string, DateTime>();
+        public static Dictionary<string, double> LimitOrderPrice = new Dictionary<string, double>();
 
         // Coin
         public static Dictionary<string, CoinState> CoinInfoDict = new Dictionary<string, CoinState>();
@@ -77,6 +81,8 @@ namespace CoinGo
 
         public static Dictionary<string, double> BuySignalRatio = new Dictionary<string, double>();
         public static Dictionary<string, double> SellSignalRatio = new Dictionary<string, double>();
+
+        public static Dictionary<string, double> Avg_Closed_Price = new Dictionary<string, double>();
 
         public static List<string> Oppertunity = new List<string>();
     }

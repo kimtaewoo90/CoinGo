@@ -108,6 +108,7 @@ namespace CoinGo
                                          candle.date_time[candle.date_time.Count - 1].Substring(14, 2) +
                                          candle.date_time[candle.date_time.Count - 1].Substring(17, 2);
             Params.LatestCandleVolume[ticker] = double.Parse(candle.total_trading_volume[candle.total_trading_volume.Count - 1]);
+            Params.Avg_Closed_Price[ticker] = candle.trade_price.Average(x => double.Parse(x));
 
 
         }
@@ -116,12 +117,19 @@ namespace CoinGo
         {
             var signal = false;
 
-            if (Params.Avg_Volume_Now_Candle[ticker].Sum() > Params.Avg_Volume_Before_20_Candle[ticker] * 5 &&
+            var cur_price = "0.0";
+            if (Params.CoinInfoDict.ContainsKey(ticker))
+                cur_price = Params.CoinInfoDict[ticker].curPrice.ToString();
+
+            if (Params.Avg_Volume_Now_Candle[ticker].Sum() > Params.Avg_Volume_Before_20_Candle[ticker] * 2 &&
                 //double.Parse(res["signed_change_price"].ToString()) > 0 &&
                 Params.Avg_Price_Now_Candle[ticker].Sum() > 500000000 &&  // 3분봉 5억
                 Params.Avg_Volume_Now_Candle[ticker].Count > 200)
             {
-                signal = true;
+                if(Params.Avg_Closed_Price[ticker] < double.Parse(cur_price))
+                {
+                    signal = true;
+                }
             }
             else
             {
@@ -149,13 +157,24 @@ namespace CoinGo
 
             // 매도 주문
             if (
-                (((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 > 2.0 || (((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 < -1.5)) &&
+                (((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 > 2.0 || (((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 < -3.0)) &&
                 ((ticker.Substring(4, ticker.Length - 4) != "BORA" && ticker.Substring(4, ticker.Length - 4) != "HUM" && ticker.Substring(4, ticker.Length - 4) != "BTT"  ) &&
                 double.Parse(cur_price) > 0.0))
             {
-                if (((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 > 2.0) Params.ProfitTimes += 1;
+                // 익절
+                if (((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 > 2.0)
+                {
+                    Params.ProfitTimes += 1;
+                    Params.LimitOrderPrice[ticker] = double.Parse(cur_price);
+                }
+
+                // 손절
                 else if (((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 < -1.5 &&
-                    ticker.Substring(4, ticker.Length - 4) != "BTT") Params.LosscutTimes += 1;
+                    ticker.Substring(4, ticker.Length - 4) != "BTT")
+                {
+                    Params.LosscutTimes += 1;
+                    Params.LosscutCode[ticker] = DateTime.Now;
+                }
 
                 signal = true;
             }
@@ -183,13 +202,14 @@ namespace CoinGo
                 {
 
                     var accntBalance = double.Parse(changeResult["bid_account"]["balance"].ToString());
-                    var orderVolume = Math.Ceiling(accntBalance / double.Parse(Params.CoinInfoDict[ticker].curPrice));
+                    var orderVolume = Convert.ToDecimal(Math.Ceiling(accntBalance / double.Parse(Params.CoinInfoDict[ticker].curPrice)));
 
                     if (accntBalance > 5000 && ticker != "KRW-BORA" && ticker != "KRW-HUM")
                     {
 
-                        // 매수 주문
+                        // 시장가 매수 주문
                         result = Params.upbit.MakeOrder(market: ticker, side: UpbitAPI.UpbitOrderSide.bid, volume: Convert.ToDecimal(accntBalance * 0.95), ord_type: UpbitAPI.UpbitOrderType.price);
+
 
                         // Update BuyInfo
                         Params.TotalTradedPriceAtBoughtTime[ticker] = Params.Avg_Price_Now_Candle[ticker].Sum();
@@ -218,7 +238,22 @@ namespace CoinGo
                 var balance = Params.CoinPositionDict[ticker].balance.ToString();
                 var locked = Params.CoinPositionDict[ticker].locked.ToString();
 
-                var result = Params.upbit.MakeOrder(market: ticker, side: UpbitAPI.UpbitOrderSide.ask, volume: Convert.ToDecimal(balance), ord_type: UpbitAPI.UpbitOrderType.market);
+                var result = "";
+
+                if (Params.LimitOrderPrice.ContainsKey(ticker))
+                {
+                    // 지정가 매도 주문(익절용)
+                    result = Params.upbit.MakeLimitOrder(market: ticker, side: UpbitAPI.UpbitOrderSide.ask, volume: Convert.ToDecimal(balance), price: Convert.ToDecimal(Params.LimitOrderPrice[ticker]));
+                    Params.LimitOrderPrice.Remove(ticker);
+                }
+                else
+                {
+                    // 시장가 매도 주문(손절용)
+                    result = Params.upbit.MakeOrder(market: ticker, side: UpbitAPI.UpbitOrderSide.ask, volume: Convert.ToDecimal(balance), ord_type: UpbitAPI.UpbitOrderType.market);
+                }
+
+
+
 
                 Params.CoinPositionDict.Remove(ticker);
                 Params.TotalTradedPriceAtBoughtTime.Remove(ticker);
