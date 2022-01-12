@@ -17,6 +17,8 @@ namespace CoinGo
 
         public static UpbitAPI upbit = new UpbitAPI(AccessKey, SecretKey);
 
+        public static List<string> ExceptCoinList = new List<string>();
+
         public static string Orderbook_ShortCode { get; set; } = "KRW-BTC";
         public static List<string> MarketTickers = new List<string>();
         public static int ProfitTimes { get; set; } = 0;
@@ -37,6 +39,7 @@ namespace CoinGo
         public static Dictionary<string, bool> ForcedSell = new Dictionary<string, bool>();
         public static Dictionary<string, DateTime> FilledTime = new Dictionary<string, DateTime>();
         public static Dictionary<string, double> LimitOrderPrice = new Dictionary<string, double>();
+        public static double TotalPnL { get; set; } = 0;
 
         // Coin
         public static Dictionary<string, CoinState> CoinInfoDict = new Dictionary<string, CoinState>();

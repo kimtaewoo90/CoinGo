@@ -217,6 +217,22 @@ namespace CoinGo
         {
             return to.ToString("s") + "+09:00";
         }
+
+        public double GetHogaTick(double price)
+        {
+            if (price > 0 && price < 10) return 0.01;
+            else if (price >= 10 && price < 100) return 0.1;
+            else if (price >= 100 && price < 1000) return 1.0;
+            else if (price >= 1000 && price < 10000) return 5.0;
+            else if (price >= 10000 && price < 100000) return 10.0;
+            else if (price >= 100000 && price < 500000) return 50.0;
+            else if (price >= 500000 && price < 1000000) return 100.0;
+            else if (price >= 1000000 && price < 2000000) return 500.0;
+            else if (price >= 2000000) return 1000.0;
+
+            else return 0;
+        }
+
         public enum UpbitMinuteCandleType { _1 = 1, _3 = 3, _5 = 5, _10 = 10, _15 = 15, _30 = 30, _60 = 60, _240 = 240 }
         public enum UpbitOrderSide { ask, bid }
         public enum UpbitOrderType { limit, price, market }

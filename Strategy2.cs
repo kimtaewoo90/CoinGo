@@ -121,12 +121,13 @@ namespace CoinGo
             if (Params.CoinInfoDict.ContainsKey(ticker))
                 cur_price = Params.CoinInfoDict[ticker].curPrice.ToString();
 
-            if (Params.Avg_Volume_Now_Candle[ticker].Sum() > Params.Avg_Volume_Before_20_Candle[ticker] * 2 &&
-                //double.Parse(res["signed_change_price"].ToString()) > 0 &&
+            if (Params.Avg_Volume_Now_Candle[ticker].Sum() > Params.Avg_Volume_Before_20_Candle[ticker] * 2.5 &&
                 Params.Avg_Price_Now_Candle[ticker].Sum() > 500000000 &&  // 3분봉 5억
-                Params.Avg_Volume_Now_Candle[ticker].Count > 200)
+                Params.Avg_Volume_Now_Candle[ticker].Count > 200 &&
+                (double.Parse(cur_price) > 500 && double.Parse(cur_price) < 1000000))
             {
-                if(Params.Avg_Closed_Price[ticker] < double.Parse(cur_price))
+                if(Params.Avg_Closed_Price[ticker] < double.Parse(cur_price) &&
+                     double.Parse(cur_price) - Params.Avg_Closed_Price[ticker] > 2 * Params.upbit.GetHogaTick(double.Parse(cur_price)))
                 {
                     signal = true;
                 }
@@ -156,10 +157,10 @@ namespace CoinGo
                 cur_price = Params.CoinInfoDict[ticker].curPrice.ToString();
 
             // 매도 주문
-            if (
-                (((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 > 2.0 || (((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 < -3.0)) &&
-                ((ticker.Substring(4, ticker.Length - 4) != "BORA" && ticker.Substring(4, ticker.Length - 4) != "HUM" && ticker.Substring(4, ticker.Length - 4) != "BTT"  ) &&
-                double.Parse(cur_price) > 0.0))
+            if ((((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 > 2.0 || 
+                (((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 < -3.0)) 
+                &&
+                double.Parse(cur_price) > 0.0)
             {
                 // 익절
                 if (((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 > 2.0)
@@ -169,8 +170,7 @@ namespace CoinGo
                 }
 
                 // 손절
-                else if (((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 < -1.5 &&
-                    ticker.Substring(4, ticker.Length - 4) != "BTT")
+                else if (((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 < -3.0)
                 {
                     Params.LosscutTimes += 1;
                     Params.LosscutCode[ticker] = DateTime.Now;
@@ -210,6 +210,8 @@ namespace CoinGo
                         // 시장가 매수 주문
                         result = Params.upbit.MakeOrder(market: ticker, side: UpbitAPI.UpbitOrderSide.bid, volume: Convert.ToDecimal(accntBalance * 0.95), ord_type: UpbitAPI.UpbitOrderType.price);
 
+                        // 시장가 매수 후 10초간 정지
+                        Delay(10000);
 
                         // Update BuyInfo
                         Params.TotalTradedPriceAtBoughtTime[ticker] = Params.Avg_Price_Now_Candle[ticker].Sum();

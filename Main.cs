@@ -62,6 +62,14 @@ namespace CoinGo
                 Params.Avg_Price_Now_Candle[MarketTickers[i]] = new List<double>();
             }
 
+            // 제외 코인
+            Params.ExceptCoinList.Add("KRW-BTC");
+            Params.ExceptCoinList.Add("KRW-ETH");
+            Params.ExceptCoinList.Add("KRW-BORA");
+            Params.ExceptCoinList.Add("KRW-HUM");
+            Params.ExceptCoinList.Add("KRW-BTT");
+
+
             Params.ForcedSell["KRW-KRW"] = false;
             Params.ForcedSell["KRW-APENFT"] = false;
 
@@ -204,10 +212,21 @@ namespace CoinGo
                                 }
                             }
 
-                            var tradedTime = res["trade_date"].ToString() + res["trade_time"].ToString();
-                            DateTime temp = DateTime.ParseExact(tradedTime, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
-                            temp = temp.AddHours(9);
+
+                            var curTime = Params.cur_time.ToString("yyyyMMddHHmmss");
+                            DateTime temp = DateTime.ParseExact(curTime, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
                             var tradedTimeDouble = double.Parse(temp.ToString("yyyyMMddHHmmss"));
+
+                            // visualizing Times
+                            if (curTimeText.InvokeRequired)
+                            {
+                                curTimeText.Invoke(new MethodInvoker(delegate ()
+                                {
+                                    curTimeText.Text = DateTime.Now.ToString("MM/dd HH:mm:ss");
+                                    candleTimeText.Text = DateTime.ParseExact(Params.Candle_Time[code], "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture).ToString("MM/dd HH:mm:ss");
+                                    CandleCode.Text = code;
+                                }));
+                            }
                             // Candle Changed
                             if (tradedTimeDouble - double.Parse(Params.Candle_Time[code].ToString()) > 300)
                             {
@@ -254,6 +273,9 @@ namespace CoinGo
 
 
                         #endregion Main Logic
+                        // Except Coin 은 건너뜀
+                        if (Params.ExceptCoinList.Contains(code)) return;
+
 
                         if (!Params.CoinPositionDict.ContainsKey(code) &&    // 현재 보유중인 코인은 매수 안함
                             !Params.LosscutCode.ContainsKey(code))           // 로스컷 한 코인은 1시간동안 매매 안함.
@@ -777,6 +799,8 @@ namespace CoinGo
                     Params.PnLChange = 0.0;
                     var cash = 0.0;
 
+                    Params.TotalPnL = 0.0;
+
                     // Display Position
                     for (int i = 0; i < Result.Count; i++)
                     {
@@ -812,6 +836,11 @@ namespace CoinGo
                             Params.CoinPositionDict[code] = position;
                         }
 
+                        // Total PnL
+                        if (!Params.ExceptCoinList.Contains(code))
+                        {
+                            Params.TotalPnL = Params.TotalPnL + Math.Round((double.Parse(cur_price) - double.Parse(avg_buy_price)) * double.Parse(balance), 2);
+
 
                         // Display Position Func
                         DisplayTargetCoins(code, balance, avg_buy_price, cur_price, rate, tradingPnL, filledTime);
@@ -844,7 +873,7 @@ namespace CoinGo
                         Cash_Asset.Text = String.Format("{0:0,0}", Params.CashAsset);
                         Coin_Asset.Text = String.Format("{0:0,0}", Params.CoinAsset);
                         PnL.Text = String.Format("{0:0,0}", Params.PnL);
-                        PnL_Change.Text = Params.PnLChange.ToString();
+                        PnL_Change.Text = Params.TotalPnL.ToString();
                     }
 
                 }
