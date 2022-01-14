@@ -121,13 +121,14 @@ namespace CoinGo
             if (Params.CoinInfoDict.ContainsKey(ticker))
                 cur_price = Params.CoinInfoDict[ticker].curPrice.ToString();
 
-            if (Params.Avg_Volume_Now_Candle[ticker].Sum() > Params.Avg_Volume_Before_20_Candle[ticker] * 2.5 &&
-                Params.Avg_Price_Now_Candle[ticker].Sum() > 500000000 &&  // 3분봉 5억
-                Params.Avg_Volume_Now_Candle[ticker].Count > 200 &&
-                (double.Parse(cur_price) > 500 && double.Parse(cur_price) < 1000000))
+            if (Params.Avg_Volume_Now_Candle[ticker].Sum() > Params.LatestCandleVolume[ticker] &&                   // 현재Candle의 거래량 > 이전Candle의 거래량 보다 크다.
+                Params.Avg_Volume_Now_Candle[ticker].Sum() > Params.Avg_Volume_Before_20_Candle[ticker] * 2.5 &&    // 현재Candle의 거래량 > 이전 10개 Candle 거래량의 평균보다 2.5배 크다.
+                Params.Avg_Price_Now_Candle[ticker].Sum() > 500000000 &&  // 3분봉 5억                              // 현재Candle의 거래대금 > 5억
+                Params.Avg_Volume_Now_Candle[ticker].Count > 200 &&                                                 // 현재Candle의 체결 갯수
+                (double.Parse(cur_price) > 500 && double.Parse(cur_price) < 1000000))                               // Price Range
             {
-                if(Params.Avg_Closed_Price[ticker] < double.Parse(cur_price) &&
-                     double.Parse(cur_price) - Params.Avg_Closed_Price[ticker] > 2 * Params.upbit.GetHogaTick(double.Parse(cur_price)))
+                if(Params.Avg_Closed_Price[ticker] < double.Parse(cur_price) &&                                      // 현재가 > 이전 10개 Candle의 종가 평균보다 크다
+                     double.Parse(cur_price) - Params.Avg_Closed_Price[ticker] > 2 * Params.upbit.GetHogaTick(double.Parse(cur_price)))    
                 {
                     signal = true;
                 }
@@ -253,12 +254,17 @@ namespace CoinGo
                     // 시장가 매도 주문(손절용)
                     result = Params.upbit.MakeOrder(market: ticker, side: UpbitAPI.UpbitOrderSide.ask, volume: Convert.ToDecimal(balance), ord_type: UpbitAPI.UpbitOrderType.market);
                 }
-
-
+                
+                Delay(1000);        // 매도 후 10초간 대기
 
 
                 Params.CoinPositionDict.Remove(ticker);
                 Params.TotalTradedPriceAtBoughtTime.Remove(ticker);
+
+                // Refresh all Data
+                Params.Avg_Volume_Before_20_Candle = new Dictionary<string, double>();
+                Params.Avg_Volume_Now_Candle = new Dictionary<string, List<double>>();
+                Params.Avg_Price_Now_Candle = new Dictionary<string, List<double>>();
 
                 return result;
 

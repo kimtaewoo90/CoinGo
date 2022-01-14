@@ -68,25 +68,19 @@ namespace CoinGo
 
         // Strategy1 RSI and BB
         public static Dictionary<string, bool> Is_get_200_candle_data = new Dictionary<string, bool>();
-
         public static Dictionary<string, bool> Signal_1 = new Dictionary<string, bool>();
         public static Dictionary<string, bool> Signal_2 = new Dictionary<string, bool>();
-
         public static Dictionary<string, List<double>> CoinTickData = new Dictionary<string, List<double>>();
 
         // Strategy2 Volume Strategy
-        public static Dictionary<string, bool> Is_Start_Strategy2 = new Dictionary<string, bool>();
-        public static Dictionary<string, double> Avg_Volume_Before_20_Candle = new Dictionary<string, double>();
-        public static Dictionary<string, List<double>> Avg_Volume_Now_Candle = new Dictionary<string, List<double>>();
-        public static Dictionary<string, List<double>> Avg_Price_Now_Candle = new Dictionary<string, List<double>>();
-
-        public static Dictionary<string, string> Candle_Time = new Dictionary<string, string>();
-
-        public static Dictionary<string, double> BuySignalRatio = new Dictionary<string, double>();
-        public static Dictionary<string, double> SellSignalRatio = new Dictionary<string, double>();
-
-        public static Dictionary<string, double> Avg_Closed_Price = new Dictionary<string, double>();
-
-        public static List<string> Oppertunity = new List<string>();
+        public static Dictionary<string, bool> Is_Start_Strategy2 = new Dictionary<string, bool>();                         // Initial Get Candle
+        public static Dictionary<string, double> Avg_Volume_Before_20_Candle = new Dictionary<string, double>();            // 이전 캔들봉의 거래량 평균
+        public static Dictionary<string, List<double>> Avg_Volume_Now_Candle = new Dictionary<string, List<double>>();      // 현재 캔들의 거래량 리스트
+        public static Dictionary<string, List<double>> Avg_Price_Now_Candle = new Dictionary<string, List<double>>();       // 현재 캔들의 거래대금 리스트
+        public static Dictionary<string, string> Candle_Time = new Dictionary<string, string>();                            // 최신 캔들봉의 시간
+        public static Dictionary<string, double> BuySignalRatio = new Dictionary<string, double>();                         // 현재 캔들의 거래대금 / 이전캔들의 거래대금평균
+        public static Dictionary<string, double> SellSignalRatio = new Dictionary<string, double>();                        // 사용안함
+        public static Dictionary<string, double> Avg_Closed_Price = new Dictionary<string, double>();                       // 이전캔들들의 종가 평균
+        public static List<string> Oppertunity = new List<string>();                                                        // 사용안함
     }
 }
