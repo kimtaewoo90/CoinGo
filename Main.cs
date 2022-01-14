@@ -60,6 +60,8 @@ namespace CoinGo
                 Params.ForcedSell[MarketTickers[i]] = false;
                 Params.Avg_Volume_Now_Candle[MarketTickers[i]] = new List<double>();
                 Params.Avg_Price_Now_Candle[MarketTickers[i]] = new List<double>();
+                Params.HistoricalTickSpeed[MarketTickers[i]] = new List<double>();
+                Params.TradeVolume[MarketTickers[i]] = new List<double>();
             }
 
             // 제외 코인
@@ -120,9 +122,9 @@ namespace CoinGo
             if (res["type"].ToString() == "ticker")
             {
                 // 로스컷 x번이면 종료
-                if(Params.LosscutTimes == 3)
+                if (Params.LosscutTimes == 3)
                 {
-                    if(MessageBox.Show("정말 종료합니까?", "YesOrNo", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                    if (MessageBox.Show("정말 종료합니까?", "YesOrNo", MessageBoxButtons.YesNo) == DialogResult.Yes)
                     {
                         ExitProgram();
                     }
@@ -156,10 +158,19 @@ namespace CoinGo
                     }
                 }
 
-                    // update position coin's cur_price
-                    if (Params.CoinPositionDict.ContainsKey(code))
+                // update position coin's cur_price
+                if (Params.CoinPositionDict.ContainsKey(code))
                     Params.CoinPositionDict[code].cur_price = Params.CoinInfoDict[code].curPrice;
 
+                // TickSpeed
+                if (res["ask_bid"].ToString() == "BID")
+                {
+                    Params.TradeVolume[code].Add(double.Parse(res["trade_volume"].ToString()));                             // Change Candle 에서 초기화
+                    Params.CurrentTickSpeed[code] = Params.TradeVolume[code].Sum() / Params.TradeVolume[code].Count;        // 현재 Candle의 스피드 
+                    
+                    if(Params.HistoricalTickSpeed.ContainsKey(code) && Params.HistoricalTickSpeed[code].Count > 0)
+                        Params.SpeedRatio[code] = Params.CurrentTickSpeed[code] / Params.HistoricalTickSpeed[code].Average();
+                }
                 #region 코인 골라내기
 
                 #endregion
@@ -200,7 +211,7 @@ namespace CoinGo
                             if (Params.LosscutCode.ContainsKey(code))
                             {
                                 // 1시간 지나면 LosscutCode Dictionary 에서 삭제
-                                if(DateTime.Compare(Params.LosscutCode[code].AddHours(1), DateTime.Now) < 0)
+                                if (DateTime.Compare(Params.LosscutCode[code].AddHours(1), DateTime.Now) < 0)
                                 {
                                     Params.LosscutCode.Remove(code);
                                 }
@@ -211,7 +222,6 @@ namespace CoinGo
                                     return;
                                 }
                             }
-
 
                             var curTime = Params.cur_time.ToString("yyyyMMddHHmmss");
                             DateTime temp = DateTime.ParseExact(curTime, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
@@ -230,15 +240,21 @@ namespace CoinGo
                             // Candle Changed
                             if (tradedTimeDouble - double.Parse(Params.Candle_Time[code].ToString()) > 300)
                             {
+                                if(Params.CurrentTickSpeed.ContainsKey(code))
+                                    Params.HistoricalTickSpeed[code].Add(Params.CurrentTickSpeed[code]);
+
+                                // 초기화
+                                Params.TradeVolume[code] = new List<double>();            
                                 Params.Avg_Volume_Now_Candle[code] = new List<double>();
                                 Params.Avg_Price_Now_Candle[code] = new List<double>();
+
                                 Params.BuySignalRatio[code] = Params.Avg_Volume_Now_Candle[code].Sum() / Params.Avg_Volume_Before_20_Candle[code];
 
                                 if (Params.Avg_Volume_Now_Candle[code].Count == 0 && Params.BuySignalRatio.ContainsKey(code))
                                 {
                                     //Params.BuySignalRatio[code] = Params.Avg_Volume_Now_Candle[code].Sum() / Params.Avg_Volume_Before_20_Candle[code];
-                                    
-                                    write_sys_log($"{code} Candle is reset, Ratio is {Params.BuySignalRatio[code]}", 0);
+
+                                    // write_sys_log($"{code} Candle is reset, Ratio is {Params.BuySignalRatio[code]}", 0);
                                 }
 
                                 // 새로운 캔들봉 요청하기
@@ -307,7 +323,7 @@ namespace CoinGo
                             {
                                 var result = strategy2.SendShortOrder();
 
-                                if (result != null && result.Substring(2,5) != "error")
+                                if (result != null && result.Substring(2, 5) != "error")
                                 {
                                     Params.CoinPositionDict.Remove(code);
                                     DeletePositionGrid(code);
@@ -351,7 +367,7 @@ namespace CoinGo
         {
             var code = res["code"].ToString();
             var avgPrice = 0.0;
-            if(Params.Avg_Closed_Price.ContainsKey(code))
+            if (Params.Avg_Closed_Price.ContainsKey(code))
                 avgPrice = Params.Avg_Closed_Price[code];
             var curPrice = double.Parse(res["trade_price"].ToString());
             var openingPrice = double.Parse(res["opening_price"].ToString());
@@ -367,7 +383,10 @@ namespace CoinGo
             if (Params.SellSignalRatio.ContainsKey(code)) sell_ratio = Params.SellSignalRatio[code];
 
             var losscutTime = "";
-            if(Params.LosscutCode.ContainsKey(code))  losscutTime = Params.LosscutCode[code].ToString();
+            if (Params.LosscutCode.ContainsKey(code)) losscutTime = Params.LosscutCode[code].ToString();
+
+            var speed_ratio = "";
+            if(Params.SpeedRatio.ContainsKey(code))  speed_ratio = Params.SpeedRatio[code].ToString();
 
             // Sorting by buy_ratio
             //UniverseDataGrid.Columns["buyRatio"].ValueType = typeof(double);
@@ -398,6 +417,8 @@ namespace CoinGo
                                 row.Cells["change"].Value = String.Format("{0:0.#}", change) + " %";
                                 row.Cells["volume"].Value = String.Format("{0:0,0}", volume);
                                 row.Cells["buyRatio"].Value = String.Format("{0:0.##}", buy_ratio);
+                                row.Cells["speedRatio"].Value = String.Format("{0:0.##}", speed_ratio);
+
                                 row.Cells["losscutTime"].Value = losscutTime;
                                 return;
                             }
@@ -409,6 +430,8 @@ namespace CoinGo
                                                   String.Format("{0:0.#}", change) + " %",
                                                   String.Format("{0:0,0}", volume),
                                                   String.Format("{0:0.##}", buy_ratio),
+                                                  String.Format("{0:0.##}", speed_ratio),
+
                                                   losscutTime);
                     }
 
@@ -418,6 +441,8 @@ namespace CoinGo
                                                     String.Format("{0:0.#}", change) + " %",
                                                     String.Format("{0:0,0}", volume),
                                                     String.Format("{0:0.##}", buy_ratio),
+                                                    String.Format("{0:0.##}", speed_ratio),
+
                                                     losscutTime);
 
                 }));
@@ -427,8 +452,8 @@ namespace CoinGo
             {
                 if (UniverseDataGrid.Rows.Count > 1)
                 {
-                   // UniverseDataGrid.Sort(UniverseDataGrid.Columns["buyRatio"], ListSortDirection.Ascending);
-                   // UniverseDataGrid.Columns["buyRatio"].ValueType = typeof(string);
+                    // UniverseDataGrid.Sort(UniverseDataGrid.Columns["buyRatio"], ListSortDirection.Ascending);
+                    // UniverseDataGrid.Columns["buyRatio"].ValueType = typeof(string);
 
                     foreach (DataGridViewRow row in UniverseDataGrid.Rows)
                     {
@@ -446,6 +471,8 @@ namespace CoinGo
                             row.Cells["change"].Value = String.Format("{0:0.#}", change) + " %";
                             row.Cells["volume"].Value = String.Format("{0:0,0}", volume);
                             row.Cells["buyRatio"].Value = String.Format("{0:0,##}", buy_ratio);
+                            row.Cells["speedRatio"].Value = String.Format("{0:0.##}", speed_ratio);
+
                             row.Cells["losscutTime"].Value = losscutTime;
                             return;
                         }
@@ -457,6 +484,7 @@ namespace CoinGo
                                               String.Format("{0:0.#}", change) + " %",
                                               String.Format("{0:0,0}", volume),
                                               String.Format("{0:0,##}", buy_ratio),
+                                              String.Format("{0:0.##}", speed_ratio),
                                                                         losscutTime);
                 }
 
@@ -466,6 +494,7 @@ namespace CoinGo
                           String.Format("{0:0.#}", change) + " %",
                           String.Format("{0:0,0}", volume),
                           String.Format("{0:0,##}", buy_ratio),
+                          String.Format("{0:0.##}", speed_ratio),
                                                     losscutTime);
             }
         }
@@ -819,7 +848,7 @@ namespace CoinGo
                             code = "Cash";
                         }
 
-                        if(Params.FilledTime.ContainsKey(code))  filledTime = Params.FilledTime[code].ToString();
+                        if (Params.FilledTime.ContainsKey(code)) filledTime = Params.FilledTime[code].ToString();
 
                         if (Params.CoinInfoDict.Count != 0)
                         {
@@ -997,7 +1026,7 @@ namespace CoinGo
 
         public void ExitProgramBtnClicked(object sender, EventArgs e)
         {
-            if(MessageBox.Show("정말 종료하시겠습니까?", "YesOrNo", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            if (MessageBox.Show("정말 종료하시겠습니까?", "YesOrNo", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
                 ExitProgram();
             }

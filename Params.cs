@@ -82,5 +82,10 @@ namespace CoinGo
         public static Dictionary<string, double> SellSignalRatio = new Dictionary<string, double>();                        // 사용안함
         public static Dictionary<string, double> Avg_Closed_Price = new Dictionary<string, double>();                       // 이전캔들들의 종가 평균
         public static List<string> Oppertunity = new List<string>();                                                        // 사용안함
+
+        public static Dictionary<string, List<double>> TradeVolume = new Dictionary<string, List<double>>();
+        public static Dictionary<string, List<double>> HistoricalTickSpeed = new Dictionary<string, List<double>>();
+        public static Dictionary<string, double> CurrentTickSpeed = new Dictionary<string, double>();
+        public static Dictionary<string, double> SpeedRatio = new Dictionary<string, double>();
     }
 }

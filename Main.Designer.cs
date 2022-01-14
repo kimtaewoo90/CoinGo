@@ -37,13 +37,6 @@ namespace CoinGo
             this.Orderbook_Price = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Orderbook_Bid = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.UniverseDataGrid = new System.Windows.Forms.DataGridView();
-            this.ticker = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.avgPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.curPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.change = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.volume = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.buyRatio = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.losscutTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Blotter = new System.Windows.Forms.TabPage();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.BLT_OrderCoinCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -109,6 +102,14 @@ namespace CoinGo
             this.curTimeText = new System.Windows.Forms.TextBox();
             this.candleTimeText = new System.Windows.Forms.TextBox();
             this.CandleCode = new System.Windows.Forms.TextBox();
+            this.ticker = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.avgPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.curPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.change = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.volume = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.buyRatio = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.speedRatio = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.losscutTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.TabControl.SuspendLayout();
             this.MarketUniverse.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.OrderbookDataGrid)).BeginInit();
@@ -200,6 +201,7 @@ namespace CoinGo
             this.change,
             this.volume,
             this.buyRatio,
+            this.speedRatio,
             this.losscutTime});
             this.UniverseDataGrid.Location = new System.Drawing.Point(6, 9);
             this.UniverseDataGrid.Name = "UniverseDataGrid";
@@ -211,49 +213,6 @@ namespace CoinGo
             this.UniverseDataGrid.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.UniverseDataGrid_CellMouseClick);
             this.UniverseDataGrid.CellMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.UniverseDataGrid_CellMouseDoubleClick);
             this.UniverseDataGrid.SortCompare += new System.Windows.Forms.DataGridViewSortCompareEventHandler(this.UniverseDataGrid_SortCompare);
-            // 
-            // ticker
-            // 
-            this.ticker.HeaderText = "코드";
-            this.ticker.Name = "ticker";
-            this.ticker.ReadOnly = true;
-            // 
-            // avgPrice
-            // 
-            this.avgPrice.HeaderText = "평균가";
-            this.avgPrice.Name = "avgPrice";
-            this.avgPrice.ReadOnly = true;
-            // 
-            // curPrice
-            // 
-            this.curPrice.HeaderText = "현재가";
-            this.curPrice.Name = "curPrice";
-            this.curPrice.ReadOnly = true;
-            // 
-            // change
-            // 
-            this.change.HeaderText = "등락률";
-            this.change.Name = "change";
-            this.change.ReadOnly = true;
-            // 
-            // volume
-            // 
-            this.volume.HeaderText = "거래량";
-            this.volume.Name = "volume";
-            this.volume.ReadOnly = true;
-            // 
-            // buyRatio
-            // 
-            this.buyRatio.HeaderText = "매수비율";
-            this.buyRatio.Name = "buyRatio";
-            this.buyRatio.ReadOnly = true;
-            // 
-            // losscutTime
-            // 
-            this.losscutTime.HeaderText = "손절시간";
-            this.losscutTime.Name = "losscutTime";
-            this.losscutTime.ReadOnly = true;
-            this.losscutTime.Width = 150;
             // 
             // Blotter
             // 
@@ -809,6 +768,55 @@ namespace CoinGo
             this.CandleCode.Size = new System.Drawing.Size(100, 21);
             this.CandleCode.TabIndex = 23;
             // 
+            // ticker
+            // 
+            this.ticker.HeaderText = "코드";
+            this.ticker.Name = "ticker";
+            this.ticker.ReadOnly = true;
+            // 
+            // avgPrice
+            // 
+            this.avgPrice.HeaderText = "평균가";
+            this.avgPrice.Name = "avgPrice";
+            this.avgPrice.ReadOnly = true;
+            // 
+            // curPrice
+            // 
+            this.curPrice.HeaderText = "현재가";
+            this.curPrice.Name = "curPrice";
+            this.curPrice.ReadOnly = true;
+            // 
+            // change
+            // 
+            this.change.HeaderText = "등락률";
+            this.change.Name = "change";
+            this.change.ReadOnly = true;
+            // 
+            // volume
+            // 
+            this.volume.HeaderText = "거래량";
+            this.volume.Name = "volume";
+            this.volume.ReadOnly = true;
+            // 
+            // buyRatio
+            // 
+            this.buyRatio.HeaderText = "매수비율";
+            this.buyRatio.Name = "buyRatio";
+            this.buyRatio.ReadOnly = true;
+            // 
+            // speedRatio
+            // 
+            this.speedRatio.HeaderText = "속도비율";
+            this.speedRatio.Name = "speedRatio";
+            this.speedRatio.ReadOnly = true;
+            // 
+            // losscutTime
+            // 
+            this.losscutTime.HeaderText = "손절시간";
+            this.losscutTime.Name = "losscutTime";
+            this.losscutTime.ReadOnly = true;
+            this.losscutTime.Width = 150;
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
@@ -926,19 +934,20 @@ namespace CoinGo
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ticker;
-        private System.Windows.Forms.DataGridViewTextBoxColumn avgPrice;
-        private System.Windows.Forms.DataGridViewTextBoxColumn curPrice;
-        private System.Windows.Forms.DataGridViewTextBoxColumn change;
-        private System.Windows.Forms.DataGridViewTextBoxColumn volume;
-        private System.Windows.Forms.DataGridViewTextBoxColumn buyRatio;
-        private System.Windows.Forms.DataGridViewTextBoxColumn losscutTime;
         private System.Windows.Forms.Button ExitProgramBtn;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.TextBox curTimeText;
         private System.Windows.Forms.TextBox candleTimeText;
         private System.Windows.Forms.TextBox CandleCode;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ticker;
+        private System.Windows.Forms.DataGridViewTextBoxColumn avgPrice;
+        private System.Windows.Forms.DataGridViewTextBoxColumn curPrice;
+        private System.Windows.Forms.DataGridViewTextBoxColumn change;
+        private System.Windows.Forms.DataGridViewTextBoxColumn volume;
+        private System.Windows.Forms.DataGridViewTextBoxColumn buyRatio;
+        private System.Windows.Forms.DataGridViewTextBoxColumn speedRatio;
+        private System.Windows.Forms.DataGridViewTextBoxColumn losscutTime;
     }
 }
 

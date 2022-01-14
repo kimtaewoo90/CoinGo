@@ -37,58 +37,6 @@ namespace CoinGo
 
         }
 
-        public void MainLogic()
-        {
-            if (Params.Is_Start_Strategy2[ticker] is true)
-            {
-                // Request candle data
-                try
-                {
-                    Get_Avg_Volume_Before_Candle();
-                    Params.Is_Start_Strategy2[ticker] = false;
-                    //util.delay(200);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"[In MainLogic] {ex.Message.ToString()}");
-
-                }
-            }
-
-            else
-            {
-                var tradeTime = double.Parse(res["trade_date"].ToString() + res["trade_time"].ToString()) + 90000.0;
-
-                if (tradeTime - double.Parse(Params.Candle_Time[ticker].ToString()) > 100)
-                {
-
-                    Get_Avg_Volume_Before_Candle();
-
-                    // 매수 후 거래량이 줄어들 때 강제 매도
-                    if (Params.TotalTradedPriceAtBoughtTime.ContainsKey(ticker))
-                    {
-                        if (Params.LatestCandleVolume[ticker] * 3 < Params.TotalTradedPriceAtBoughtTime[ticker])
-                        {
-                            Params.SellSignalRatio[ticker] = Params.TotalTradedPriceAtBoughtTime[ticker] / Params.LatestCandleVolume[ticker];
-                            Params.ForcedSell[ticker] = true;
-                        }
-                    }
-
-                }
-                else
-                {
-
-                    Params.Avg_Volume_Now_Candle[ticker].Add(Math.Abs(double.Parse(res["trade_volume"].ToString())));
-                    Params.Avg_Price_Now_Candle[ticker].Add(
-                        Math.Abs(double.Parse(res["trade_price"].ToString())) *
-                        Math.Abs(double.Parse(res["trade_volume"].ToString())));
-                }
-            }
-
-
-        }
-
-
 
         public void Get_Avg_Volume_Before_Candle()
         {
@@ -125,6 +73,7 @@ namespace CoinGo
                 Params.Avg_Volume_Now_Candle[ticker].Sum() > Params.Avg_Volume_Before_20_Candle[ticker] * 2.5 &&    // 현재Candle의 거래량 > 이전 10개 Candle 거래량의 평균보다 2.5배 크다.
                 Params.Avg_Price_Now_Candle[ticker].Sum() > 500000000 &&  // 3분봉 5억                              // 현재Candle의 거래대금 > 5억
                 Params.Avg_Volume_Now_Candle[ticker].Count > 200 &&                                                 // 현재Candle의 체결 갯수
+                Params.SpeedRatio[ticker] > 10 &&
                 (double.Parse(cur_price) > 500 && double.Parse(cur_price) < 1000000))                               // Price Range
             {
                 if(Params.Avg_Closed_Price[ticker] < double.Parse(cur_price) &&                                      // 현재가 > 이전 10개 Candle의 종가 평균보다 크다
