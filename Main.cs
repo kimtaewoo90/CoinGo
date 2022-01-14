@@ -840,7 +840,7 @@ namespace CoinGo
                         if (!Params.ExceptCoinList.Contains(code))
                         {
                             Params.TotalPnL = Params.TotalPnL + Math.Round((double.Parse(cur_price) - double.Parse(avg_buy_price)) * double.Parse(balance), 2);
-
+                        }
 
                         // Display Position Func
                         DisplayTargetCoins(code, balance, avg_buy_price, cur_price, rate, tradingPnL, filledTime);
