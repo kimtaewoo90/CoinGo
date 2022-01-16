@@ -110,6 +110,7 @@ namespace CoinGo
             this.buyRatio = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.speedRatio = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.losscutTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tickspeed = new System.Windows.Forms.CheckBox();
             this.TabControl.SuspendLayout();
             this.MarketUniverse.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.OrderbookDataGrid)).BeginInit();
@@ -559,6 +560,7 @@ namespace CoinGo
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.tickspeed);
             this.groupBox3.Controls.Add(this.ExitProgramBtn);
             this.groupBox3.Controls.Add(this.strategy2_check);
             this.groupBox3.Controls.Add(this.strategy1_check);
@@ -817,6 +819,16 @@ namespace CoinGo
             this.losscutTime.ReadOnly = true;
             this.losscutTime.Width = 150;
             // 
+            // tickspeed
+            // 
+            this.tickspeed.AutoSize = true;
+            this.tickspeed.Location = new System.Drawing.Point(398, 17);
+            this.tickspeed.Name = "tickspeed";
+            this.tickspeed.Size = new System.Drawing.Size(60, 16);
+            this.tickspeed.TabIndex = 5;
+            this.tickspeed.Text = "틱속도";
+            this.tickspeed.UseVisualStyleBackColor = true;
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
@@ -948,6 +960,7 @@ namespace CoinGo
         private System.Windows.Forms.DataGridViewTextBoxColumn buyRatio;
         private System.Windows.Forms.DataGridViewTextBoxColumn speedRatio;
         private System.Windows.Forms.DataGridViewTextBoxColumn losscutTime;
+        private System.Windows.Forms.CheckBox tickspeed;
     }
 }
 

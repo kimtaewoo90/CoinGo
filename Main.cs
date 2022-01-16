@@ -139,6 +139,15 @@ namespace CoinGo
                 CoinState state = new CoinState(res);
                 Params.CoinInfoDict[code] = state;
 
+                // Except 1000원 미만 코인
+                if(double.Parse(res["trade_price"].ToString()) < 1000 &&
+                    !Params.ExceptCoinList.Contains(code))
+                {
+                    Params.ExceptCoinList.Add(code);
+                }
+
+                if (Params.ExceptCoinList.Contains(code)) return;
+
                 // Max Ratio display
                 if (Params.Avg_Price_Now_Candle.ContainsKey(code))
                 {
@@ -162,15 +171,23 @@ namespace CoinGo
                 if (Params.CoinPositionDict.ContainsKey(code))
                     Params.CoinPositionDict[code].cur_price = Params.CoinInfoDict[code].curPrice;
 
-                // TickSpeed
-                if (res["ask_bid"].ToString() == "BID")
+                if (tickspeed.Checked)
                 {
-                    Params.TradeVolume[code].Add(double.Parse(res["trade_volume"].ToString()));                             // Change Candle 에서 초기화
-                    Params.CurrentTickSpeed[code] = Params.TradeVolume[code].Sum() / Params.TradeVolume[code].Count;        // 현재 Candle의 스피드 
-                    
-                    if(Params.HistoricalTickSpeed.ContainsKey(code) && Params.HistoricalTickSpeed[code].Count > 0)
-                        Params.SpeedRatio[code] = Params.CurrentTickSpeed[code] / Params.HistoricalTickSpeed[code].Average();
+                    // TickSpeed
+                    if (res["ask_bid"].ToString() == "BID")
+                    {
+                        Params.TradeVolume[code].Add(double.Parse(res["trade_volume"].ToString()));                             // Change Candle 에서 초기화
+                        Params.CurrentTickSpeed[code] = Params.TradeVolume[code].Sum();// / Params.TradeVolume[code].Count;        // 현재 Candle의 스피드 
+
+                        if (Params.HistoricalTickSpeed.ContainsKey(code) && Params.HistoricalTickSpeed[code].Count > 0)
+                            Params.SpeedRatio[code] = Params.CurrentTickSpeed[code] / Params.HistoricalTickSpeed[code].Average();
+                    }
                 }
+                else
+                {
+                    Params.SpeedRatio[code] = 0;
+                }
+
                 #region 코인 골라내기
 
                 #endregion
@@ -241,35 +258,21 @@ namespace CoinGo
                             if (tradedTimeDouble - double.Parse(Params.Candle_Time[code].ToString()) > 300)
                             {
                                 if(Params.CurrentTickSpeed.ContainsKey(code))
-                                    Params.HistoricalTickSpeed[code].Add(Params.CurrentTickSpeed[code]);
+                                    Params.HistoricalTickSpeed[code].Add(Params.CurrentTickSpeed[code]);    // Tick speed
 
                                 // 초기화
-                                Params.TradeVolume[code] = new List<double>();            
+                                Params.TradeVolume[code] = new List<double>();                              //Tick speed   
                                 Params.Avg_Volume_Now_Candle[code] = new List<double>();
                                 Params.Avg_Price_Now_Candle[code] = new List<double>();
 
-                                Params.BuySignalRatio[code] = Params.Avg_Volume_Now_Candle[code].Sum() / Params.Avg_Volume_Before_20_Candle[code];
+                                Params.BuySignalRatio[code] = 0.0;
 
-                                if (Params.Avg_Volume_Now_Candle[code].Count == 0 && Params.BuySignalRatio.ContainsKey(code))
-                                {
-                                    //Params.BuySignalRatio[code] = Params.Avg_Volume_Now_Candle[code].Sum() / Params.Avg_Volume_Before_20_Candle[code];
+                                // if (Params.Avg_Volume_Now_Candle.ContainsKey(code) && Params.Avg_Volume_Before_20_Candle.ContainsKey(code))
+                                // Params.BuySignalRatio[code] = 0.0; //Params.Avg_Volume_Now_Candle[code].Sum() / Params.Avg_Volume_Before_20_Candle[code];
 
-                                    // write_sys_log($"{code} Candle is reset, Ratio is {Params.BuySignalRatio[code]}", 0);
-                                }
 
                                 // 새로운 캔들봉 요청하기
                                 strategy2.Get_Avg_Volume_Before_Candle();
-
-                                /*
-                                // 매수 후 거래량이 줄어들 때 강제 매도
-                                if (Params.TotalTradedPriceAtBoughtTime.ContainsKey(code))
-                                {
-                                    if (Params.LatestCandleVolume[code] * 3 < Params.TotalTradedPriceAtBoughtTime[code])
-                                    {
-                                        Params.ForcedSell[code] = true;
-                                    }
-                                }
-                                */
 
                                 return;
                             }
@@ -277,26 +280,28 @@ namespace CoinGo
                             // Candle Continue
                             else
                             {
-                                Params.Avg_Volume_Now_Candle[code].Add(Math.Abs(double.Parse(res["trade_volume"].ToString())));
-                                Params.Avg_Price_Now_Candle[code].Add(
-                                    Math.Abs(double.Parse(res["trade_price"].ToString())) *
-                                    Math.Abs(double.Parse(res["trade_volume"].ToString())));
+                                if (Params.Avg_Volume_Now_Candle.ContainsKey(code) && Params.Avg_Volume_Before_20_Candle.ContainsKey(code))
+                                {
+                                    Params.Avg_Volume_Now_Candle[code].Add(Math.Abs(double.Parse(res["trade_volume"].ToString())));
+                                    Params.Avg_Price_Now_Candle[code].Add(
+                                        Math.Abs(double.Parse(res["trade_price"].ToString())) *
+                                        Math.Abs(double.Parse(res["trade_volume"].ToString())));
 
-                                Params.BuySignalRatio[code] = Params.Avg_Volume_Now_Candle[code].Sum() / Params.Avg_Volume_Before_20_Candle[code];
-
+                                    Params.BuySignalRatio[code] = Params.Avg_Volume_Now_Candle[code].Sum() / Params.Avg_Volume_Before_20_Candle[code];
+                                }        
                             }
                         }
 
 
                         #endregion Main Logic
                         // Except Coin 은 건너뜀
-                        if (Params.ExceptCoinList.Contains(code)) return;
 
 
                         if (!Params.CoinPositionDict.ContainsKey(code) &&    // 현재 보유중인 코인은 매수 안함
                             !Params.LosscutCode.ContainsKey(code))           // 로스컷 한 코인은 1시간동안 매매 안함.
                         {
-                            var buy_signal = strategy2.RequestLongSignal();
+                            var buy_signal = false;
+                            buy_signal = strategy2.RequestLongSignal();
 
                             if (buy_signal is true)
                             {
@@ -304,11 +309,13 @@ namespace CoinGo
                                 if (code == Params.Avg_Price_Now_Candle.Aggregate((x, y) => x.Value.Sum() > y.Value.Sum() ? x : y).Key || true)
                                 {
                                     var result = strategy2.SendLongOrder();
+                                    util.delay(5000);        // 매수 후 5초간 대기
 
                                     if (result != "")
                                     {
                                         //UpdatePosition();
                                         write_sys_log($"Bought {code} Coin", 0);
+                                        return;
                                     }
                                 }
 
@@ -317,18 +324,20 @@ namespace CoinGo
 
                         else
                         {
-                            var sell_signal = strategy2.RequestShortSignal();
+                            var sell_signal = false;
+                            sell_signal = strategy2.RequestShortSignal();
 
                             if (sell_signal is true)
                             {
                                 var result = strategy2.SendShortOrder();
+                                util.delay(5000);        // 매도 후 5초간 대기
 
                                 if (result != null && result.Substring(2, 5) != "error")
                                 {
                                     Params.CoinPositionDict.Remove(code);
                                     DeletePositionGrid(code);
+                                    return;
                                 }
-
                             }
                         }
                     }
@@ -828,7 +837,7 @@ namespace CoinGo
                     Params.PnLChange = 0.0;
                     var cash = 0.0;
 
-                    Params.TotalPnL = 0.0;
+                    //Params.TotalPnL = 0.0;
 
                     // Display Position
                     for (int i = 0; i < Result.Count; i++)
@@ -893,7 +902,7 @@ namespace CoinGo
                             Cash_Asset.Text = String.Format("{0:0,0}", Params.CashAsset);
                             Coin_Asset.Text = String.Format("{0:0,0}", Params.CoinAsset);
                             PnL.Text = String.Format("{0:0,0}", Params.PnL);
-                            PnL_Change.Text = Params.PnLChange.ToString();
+                            PnL_Change.Text = Params.TotalPnL.ToString();
                         }));
                     }
                     else
