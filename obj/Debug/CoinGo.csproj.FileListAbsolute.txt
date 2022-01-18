@@ -32,3 +32,17 @@ C:\Users\tangb\source\repos\CoinGo\bin\Debug\System.Buffers.dll
 C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.csproj.AssemblyReference.cache
 C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.csproj.SuggestedBindingRedirects.cache
 C:\Users\tangb\source\repos\CoinGo\obj\Debug\CoinGo.exe.config
+C:\Users\tangb\source\repos\CoinGo\bin\Debug\IronPython.dll
+C:\Users\tangb\source\repos\CoinGo\bin\Debug\IronPython.Modules.dll
+C:\Users\tangb\source\repos\CoinGo\bin\Debug\IronPython.SQLite.dll
+C:\Users\tangb\source\repos\CoinGo\bin\Debug\IronPython.Wpf.dll
+C:\Users\tangb\source\repos\CoinGo\bin\Debug\Microsoft.Dynamic.dll
+C:\Users\tangb\source\repos\CoinGo\bin\Debug\Microsoft.Scripting.dll
+C:\Users\tangb\source\repos\CoinGo\bin\Debug\Microsoft.Scripting.Metadata.dll
+C:\Users\tangb\source\repos\CoinGo\bin\Debug\IronPython.xml
+C:\Users\tangb\source\repos\CoinGo\bin\Debug\IronPython.Modules.xml
+C:\Users\tangb\source\repos\CoinGo\bin\Debug\IronPython.SQLite.xml
+C:\Users\tangb\source\repos\CoinGo\bin\Debug\IronPython.Wpf.xml
+C:\Users\tangb\source\repos\CoinGo\bin\Debug\Microsoft.Dynamic.xml
+C:\Users\tangb\source\repos\CoinGo\bin\Debug\Microsoft.Scripting.xml
+C:\Users\tangb\source\repos\CoinGo\bin\Debug\Microsoft.Scripting.Metadata.xml

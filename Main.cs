@@ -62,6 +62,9 @@ namespace CoinGo
                 Params.Avg_Price_Now_Candle[MarketTickers[i]] = new List<double>();
                 Params.HistoricalTickSpeed[MarketTickers[i]] = new List<double>();
                 Params.TradeVolume[MarketTickers[i]] = new List<double>();
+
+                // strategy1
+                Params.RSI_list[MarketTickers[i]] = new List<double>();
             }
 
             // 제외 코인
@@ -200,9 +203,33 @@ namespace CoinGo
                 {
                     Strategy1_RSI_BB strategy1 = new Strategy1_RSI_BB(code);
 
-                    // Candle data 수집
-                    strategy1.GetCandleData(code);
-                    strategy1.UpdateSignals(res);
+                    var curTime = Params.cur_time.ToString("yyyyMMddHHmmss");
+                    DateTime temp = DateTime.ParseExact(curTime, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
+                    var tradedTimeDouble = double.Parse(temp.ToString("yyyyMMddHHmmss"));
+
+                    // visualizing Times
+                    if (curTimeText.InvokeRequired)
+                    {
+                        curTimeText.Invoke(new MethodInvoker(delegate ()
+                        {
+                            curTimeText.Text = DateTime.Now.ToString("MM/dd HH:mm:ss");
+                            //candleTimeText.Text = DateTime.ParseExact(Params.Candle_Time[code], "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture).ToString("MM/dd HH:mm:ss");
+                            CandleCode.Text = code;
+                        }));
+                    }
+
+                    strategy1.GetCandleData();
+
+                    // Candle Changed
+                    if (tradedTimeDouble - double.Parse(Params.Candle_Time[code].ToString()) > 300)
+                    {
+                        // Get new candle data
+                        strategy1.GetCandleData();
+
+
+                    }
+
+
                 }
 
                 if (strategy2_check.Checked)
@@ -267,10 +294,6 @@ namespace CoinGo
 
                                 Params.BuySignalRatio[code] = 0.0;
 
-                                // if (Params.Avg_Volume_Now_Candle.ContainsKey(code) && Params.Avg_Volume_Before_20_Candle.ContainsKey(code))
-                                // Params.BuySignalRatio[code] = 0.0; //Params.Avg_Volume_Now_Candle[code].Sum() / Params.Avg_Volume_Before_20_Candle[code];
-
-
                                 // 새로운 캔들봉 요청하기
                                 strategy2.Get_Avg_Volume_Before_Candle();
 
@@ -332,10 +355,21 @@ namespace CoinGo
                                 var result = strategy2.SendShortOrder();
                                 util.delay(5000);        // 매도 후 5초간 대기
 
-                                if (result != null && result.Substring(2, 5) != "error")
+                                JObject sellResult = JObject.Parse(result);
+
+                                if (result != null && result.Substring(2, 5) != "error" && sellResult["avg_price"] != null)                                
                                 {
                                     Params.CoinPositionDict.Remove(code);
                                     DeletePositionGrid(code);
+                                    //Params.Strategy_PnL += double.Parse(sellResult["volume"].ToString()) * double.Parse(sellResult["avg_price"].ToString());
+                                    return;
+                                }
+                                else
+                                {
+                                    util.delay(5000);
+                                    Params.CoinPositionDict.Remove(code);
+                                    DeletePositionGrid(code);
+                                    //Params.Strategy_PnL += double.Parse(sellResult["volume"].ToString()) * double.Parse(sellResult["avg_price"].ToString());
                                     return;
                                 }
                             }
@@ -360,16 +394,12 @@ namespace CoinGo
 
                 if (Orderbook_check.Checked)
                     DisplayOrderbook(res);
-
             }
 
             else if (res["type"].ToString() == "trades")
             {
                 var code = res["code"].ToString();
-
-
             }
-
         }
 
         public void DisplayUniverseMarket(JObject res)
@@ -837,8 +867,6 @@ namespace CoinGo
                     Params.PnLChange = 0.0;
                     var cash = 0.0;
 
-                    //Params.TotalPnL = 0.0;
-
                     // Display Position
                     for (int i = 0; i < Result.Count; i++)
                     {
@@ -874,12 +902,6 @@ namespace CoinGo
                             Params.CoinPositionDict[code] = position;
                         }
 
-                        // Total PnL
-                        if (!Params.ExceptCoinList.Contains(code))
-                        {
-                            Params.TotalPnL = Params.TotalPnL + Math.Round((double.Parse(cur_price) - double.Parse(avg_buy_price)) * double.Parse(balance), 2);
-                        }
-
                         // Display Position Func
                         DisplayTargetCoins(code, balance, avg_buy_price, cur_price, rate, tradingPnL, filledTime);
 
@@ -902,7 +924,7 @@ namespace CoinGo
                             Cash_Asset.Text = String.Format("{0:0,0}", Params.CashAsset);
                             Coin_Asset.Text = String.Format("{0:0,0}", Params.CoinAsset);
                             PnL.Text = String.Format("{0:0,0}", Params.PnL);
-                            PnL_Change.Text = Params.TotalPnL.ToString();
+                            Strategy_PnL.Text = Params.Strategy_PnL.ToString();
                         }));
                     }
                     else
@@ -911,7 +933,7 @@ namespace CoinGo
                         Cash_Asset.Text = String.Format("{0:0,0}", Params.CashAsset);
                         Coin_Asset.Text = String.Format("{0:0,0}", Params.CoinAsset);
                         PnL.Text = String.Format("{0:0,0}", Params.PnL);
-                        PnL_Change.Text = Params.TotalPnL.ToString();
+                        Strategy_PnL.Text = Params.Strategy_PnL.ToString();
                     }
 
                 }

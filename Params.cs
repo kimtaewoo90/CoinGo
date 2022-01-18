@@ -39,7 +39,9 @@ namespace CoinGo
         public static Dictionary<string, bool> ForcedSell = new Dictionary<string, bool>();
         public static Dictionary<string, DateTime> FilledTime = new Dictionary<string, DateTime>();
         public static Dictionary<string, double> LimitOrderPrice = new Dictionary<string, double>();
-        public static double TotalPnL { get; set; } = 0;
+
+        //public static 
+        public static double Strategy_PnL { get; set; } = 0;
 
         // Coin
         public static Dictionary<string, CoinState> CoinInfoDict = new Dictionary<string, CoinState>();
@@ -55,7 +57,7 @@ namespace CoinGo
         public static Dictionary<string, List<double>> DifferencePrice = new Dictionary<string, List<double>>();
         public static Dictionary<string, List<double>> UpperSide = new Dictionary<string, List<double>>();
         public static Dictionary<string, List<double>> DownSide = new Dictionary<string, List<double>>();
-        public static Dictionary<string, List<double>> RSI_List = new Dictionary<string, List<double>>();
+        //public static Dictionary<string, List<double>> RSI_List = new Dictionary<string, List<double>>();
 
         // Position
         public static double TotalAsset { get; set; }
@@ -67,10 +69,11 @@ namespace CoinGo
 
 
         // Strategy1 RSI and BB
-        public static Dictionary<string, bool> Is_get_200_candle_data = new Dictionary<string, bool>();
-        public static Dictionary<string, bool> Signal_1 = new Dictionary<string, bool>();
-        public static Dictionary<string, bool> Signal_2 = new Dictionary<string, bool>();
-        public static Dictionary<string, List<double>> CoinTickData = new Dictionary<string, List<double>>();
+        public static Dictionary<string, bool> Is_first_down_touch = new Dictionary<string, bool>();
+        public static Dictionary<string, bool> Is_second_down_touch= new Dictionary<string, bool>();
+        public static Dictionary<string, bool> Is_first_upper_touch = new Dictionary<string, bool>();
+        public static Dictionary<string, bool> Is_second_upper_touch = new Dictionary<string, bool>();
+        public static Dictionary<string, List<double>> RSI_list = new Dictionary<string, List<double>>();
 
         // Strategy2 Volume Strategy
         public static Dictionary<string, bool> Is_Start_Strategy2 = new Dictionary<string, bool>();                         // Initial Get Candle
@@ -87,5 +90,8 @@ namespace CoinGo
         public static Dictionary<string, List<double>> HistoricalTickSpeed = new Dictionary<string, List<double>>();
         public static Dictionary<string, double> CurrentTickSpeed = new Dictionary<string, double>();
         public static Dictionary<string, double> SpeedRatio = new Dictionary<string, double>();
+
+        // DB
+        public static Dictionary<string, DB_Blt_Table> bltDBclass = new Dictionary<string, DB_Blt_Table>();
     }
 }

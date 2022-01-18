@@ -37,6 +37,14 @@ namespace CoinGo
             this.Orderbook_Price = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Orderbook_Bid = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.UniverseDataGrid = new System.Windows.Forms.DataGridView();
+            this.ticker = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.avgPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.curPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.change = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.volume = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.buyRatio = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.speedRatio = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.losscutTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Blotter = new System.Windows.Forms.TabPage();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.BLT_OrderCoinCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -71,13 +79,14 @@ namespace CoinGo
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.PnL_Change = new System.Windows.Forms.Label();
+            this.Strategy_PnL = new System.Windows.Forms.Label();
             this.PnL = new System.Windows.Forms.Label();
             this.Coin_Asset = new System.Windows.Forms.Label();
             this.Cash_Asset = new System.Windows.Forms.Label();
             this.Total_Asset = new System.Windows.Forms.Label();
             this.maxRatio = new System.Windows.Forms.TextBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.tickspeed = new System.Windows.Forms.CheckBox();
             this.ExitProgramBtn = new System.Windows.Forms.Button();
             this.strategy2_check = new System.Windows.Forms.CheckBox();
             this.strategy1_check = new System.Windows.Forms.CheckBox();
@@ -102,15 +111,6 @@ namespace CoinGo
             this.curTimeText = new System.Windows.Forms.TextBox();
             this.candleTimeText = new System.Windows.Forms.TextBox();
             this.CandleCode = new System.Windows.Forms.TextBox();
-            this.ticker = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.avgPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.curPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.change = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.volume = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.buyRatio = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.speedRatio = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.losscutTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tickspeed = new System.Windows.Forms.CheckBox();
             this.TabControl.SuspendLayout();
             this.MarketUniverse.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.OrderbookDataGrid)).BeginInit();
@@ -214,6 +214,55 @@ namespace CoinGo
             this.UniverseDataGrid.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.UniverseDataGrid_CellMouseClick);
             this.UniverseDataGrid.CellMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.UniverseDataGrid_CellMouseDoubleClick);
             this.UniverseDataGrid.SortCompare += new System.Windows.Forms.DataGridViewSortCompareEventHandler(this.UniverseDataGrid_SortCompare);
+            // 
+            // ticker
+            // 
+            this.ticker.HeaderText = "코드";
+            this.ticker.Name = "ticker";
+            this.ticker.ReadOnly = true;
+            // 
+            // avgPrice
+            // 
+            this.avgPrice.HeaderText = "평균가";
+            this.avgPrice.Name = "avgPrice";
+            this.avgPrice.ReadOnly = true;
+            // 
+            // curPrice
+            // 
+            this.curPrice.HeaderText = "현재가";
+            this.curPrice.Name = "curPrice";
+            this.curPrice.ReadOnly = true;
+            // 
+            // change
+            // 
+            this.change.HeaderText = "등락률";
+            this.change.Name = "change";
+            this.change.ReadOnly = true;
+            // 
+            // volume
+            // 
+            this.volume.HeaderText = "거래량";
+            this.volume.Name = "volume";
+            this.volume.ReadOnly = true;
+            // 
+            // buyRatio
+            // 
+            this.buyRatio.HeaderText = "매수비율";
+            this.buyRatio.Name = "buyRatio";
+            this.buyRatio.ReadOnly = true;
+            // 
+            // speedRatio
+            // 
+            this.speedRatio.HeaderText = "속도비율";
+            this.speedRatio.Name = "speedRatio";
+            this.speedRatio.ReadOnly = true;
+            // 
+            // losscutTime
+            // 
+            this.losscutTime.HeaderText = "손절시간";
+            this.losscutTime.Name = "losscutTime";
+            this.losscutTime.ReadOnly = true;
+            this.losscutTime.Width = 150;
             // 
             // Blotter
             // 
@@ -483,7 +532,7 @@ namespace CoinGo
             // groupBox2
             // 
             this.groupBox2.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.groupBox2.Controls.Add(this.PnL_Change);
+            this.groupBox2.Controls.Add(this.Strategy_PnL);
             this.groupBox2.Controls.Add(this.PnL);
             this.groupBox2.Controls.Add(this.Coin_Asset);
             this.groupBox2.Controls.Add(this.Cash_Asset);
@@ -501,15 +550,15 @@ namespace CoinGo
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "자산현황";
             // 
-            // PnL_Change
+            // Strategy_PnL
             // 
-            this.PnL_Change.AutoSize = true;
-            this.PnL_Change.Font = new System.Drawing.Font("굴림", 10F);
-            this.PnL_Change.Location = new System.Drawing.Point(389, 133);
-            this.PnL_Change.Name = "PnL_Change";
-            this.PnL_Change.Size = new System.Drawing.Size(15, 14);
-            this.PnL_Change.TabIndex = 12;
-            this.PnL_Change.Text = "0";
+            this.Strategy_PnL.AutoSize = true;
+            this.Strategy_PnL.Font = new System.Drawing.Font("굴림", 10F);
+            this.Strategy_PnL.Location = new System.Drawing.Point(389, 133);
+            this.Strategy_PnL.Name = "Strategy_PnL";
+            this.Strategy_PnL.Size = new System.Drawing.Size(15, 14);
+            this.Strategy_PnL.TabIndex = 12;
+            this.Strategy_PnL.Text = "0";
             // 
             // PnL
             // 
@@ -572,6 +621,16 @@ namespace CoinGo
             this.groupBox3.TabIndex = 10;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Options";
+            // 
+            // tickspeed
+            // 
+            this.tickspeed.AutoSize = true;
+            this.tickspeed.Location = new System.Drawing.Point(398, 17);
+            this.tickspeed.Name = "tickspeed";
+            this.tickspeed.Size = new System.Drawing.Size(60, 16);
+            this.tickspeed.TabIndex = 5;
+            this.tickspeed.Text = "틱속도";
+            this.tickspeed.UseVisualStyleBackColor = true;
             // 
             // ExitProgramBtn
             // 
@@ -770,65 +829,6 @@ namespace CoinGo
             this.CandleCode.Size = new System.Drawing.Size(100, 21);
             this.CandleCode.TabIndex = 23;
             // 
-            // ticker
-            // 
-            this.ticker.HeaderText = "코드";
-            this.ticker.Name = "ticker";
-            this.ticker.ReadOnly = true;
-            // 
-            // avgPrice
-            // 
-            this.avgPrice.HeaderText = "평균가";
-            this.avgPrice.Name = "avgPrice";
-            this.avgPrice.ReadOnly = true;
-            // 
-            // curPrice
-            // 
-            this.curPrice.HeaderText = "현재가";
-            this.curPrice.Name = "curPrice";
-            this.curPrice.ReadOnly = true;
-            // 
-            // change
-            // 
-            this.change.HeaderText = "등락률";
-            this.change.Name = "change";
-            this.change.ReadOnly = true;
-            // 
-            // volume
-            // 
-            this.volume.HeaderText = "거래량";
-            this.volume.Name = "volume";
-            this.volume.ReadOnly = true;
-            // 
-            // buyRatio
-            // 
-            this.buyRatio.HeaderText = "매수비율";
-            this.buyRatio.Name = "buyRatio";
-            this.buyRatio.ReadOnly = true;
-            // 
-            // speedRatio
-            // 
-            this.speedRatio.HeaderText = "속도비율";
-            this.speedRatio.Name = "speedRatio";
-            this.speedRatio.ReadOnly = true;
-            // 
-            // losscutTime
-            // 
-            this.losscutTime.HeaderText = "손절시간";
-            this.losscutTime.Name = "losscutTime";
-            this.losscutTime.ReadOnly = true;
-            this.losscutTime.Width = 150;
-            // 
-            // tickspeed
-            // 
-            this.tickspeed.AutoSize = true;
-            this.tickspeed.Location = new System.Drawing.Point(398, 17);
-            this.tickspeed.Name = "tickspeed";
-            this.tickspeed.Size = new System.Drawing.Size(60, 16);
-            this.tickspeed.TabIndex = 5;
-            this.tickspeed.Text = "틱속도";
-            this.tickspeed.UseVisualStyleBackColor = true;
-            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
@@ -907,7 +907,7 @@ namespace CoinGo
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label PnL_Change;
+        private System.Windows.Forms.Label Strategy_PnL;
         private System.Windows.Forms.Label PnL;
         private System.Windows.Forms.Label Coin_Asset;
         private System.Windows.Forms.Label Cash_Asset;

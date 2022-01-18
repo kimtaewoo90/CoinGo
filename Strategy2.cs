@@ -74,7 +74,7 @@ namespace CoinGo
                 Params.LatestCandleVolume.ContainsKey(ticker))
             {
                 if (Params.Avg_Volume_Now_Candle[ticker].Sum() > Params.LatestCandleVolume[ticker] &&                   // 현재Candle의 거래량 > 이전Candle의 거래량 보다 크다.
-                    Params.Avg_Volume_Now_Candle[ticker].Sum() > Params.Avg_Volume_Before_20_Candle[ticker] * 2 &&    // 현재Candle의 거래량 > 이전 10개 Candle 거래량의 평균보다 2.5배 크다.
+                    Params.Avg_Volume_Now_Candle[ticker].Sum() > Params.Avg_Volume_Before_20_Candle[ticker] * 1.7 &&    // 현재Candle의 거래량 > 이전 10개 Candle 거래량의 평균보다 2.5배 크다.
                     Params.Avg_Price_Now_Candle[ticker].Sum() > 550000000 &&  // 3분봉 5억                              // 현재Candle의 거래대금 > 5억
                     Params.Avg_Volume_Now_Candle[ticker].Count > 200 &&                                                 // 현재Candle의 체결 갯수
                                                                                                                         //Params.SpeedRatio[ticker] > 5 &&
@@ -115,7 +115,8 @@ namespace CoinGo
                 cur_price = Params.CoinInfoDict[ticker].curPrice.ToString();
 
             // 매도 주문
-            if ((((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 > 2.0 || (((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 < -3.0))
+            if ((((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 > 1.05 || 
+                (((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 < -1.95))
                 &&
                 double.Parse(cur_price) > 0.0)
             {
@@ -129,7 +130,7 @@ namespace CoinGo
                 }
 
                 // 손절
-                else if (((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 < -2.05)
+                else if (((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 < -1.95)
                 {
                     Params.LosscutTimes += 1;
                     Params.LosscutCode[ticker] = DateTime.Now;
@@ -183,6 +184,8 @@ namespace CoinGo
                         // Update BuyInfo
                         Params.TotalTradedPriceAtBoughtTime[ticker] = Params.Avg_Price_Now_Candle[ticker].Sum();
                         Params.FilledTime[ticker] = DateTime.Now;
+
+                        //DB_Blt_Table bltDB = new DB_Blt_Table(DateTime.Now, ticker, )
 
                     }
                 }

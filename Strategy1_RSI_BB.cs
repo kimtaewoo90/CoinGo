@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+using IronPython.Hosting;
 
 namespace CoinGo
 {
@@ -15,6 +20,8 @@ namespace CoinGo
             ticker = code;
         }
 
+        // Old version
+        /*
         public void GetCandleData(string ticker)
         {
             var CandleData = "";
@@ -214,6 +221,57 @@ namespace CoinGo
                 // 매수 진행
             }
 
+        }
+        */
+
+        // New Version
+        public void GetCandleData()
+        {
+            var CandleData = Params.upbit.GetCandles_Minute(ticker, UpbitAPI.UpbitMinuteCandleType._3, count: 200);
+            CandleState candle = new CandleState(CandleData);
+
+            Delay(100);
+
+            Params.CandleDict[ticker] = candle;
+
+            GetRSI(CandleData);
+        }
+
+        public void GetRSI(string data)
+        {
+            var pyEngine = Python.CreateEngine();
+            var vScope = pyEngine.CreateScope();
+
+            try
+            {
+                //var vSource = pyEngine.CreateScriptSourceFromFile("C:/Users/tangb/source/repos/pythonModule/env/pythonModule.py");
+                var vSource = pyEngine.CreateScriptSourceFromFile("C:/Users/tangb/source/repos/CoinGo/GetRSI.py");
+                vSource.Execute(vScope);
+
+                // 파이썬 스크립트 안의 함수 불러오기
+                var getReturnValue = vScope.GetVariable<Func<string, double>>("rsi_upbit");
+
+                Params.RSI_list[ticker].Add(double.Parse(getReturnValue(ticker).ToString()));
+            }
+
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+        }
+
+
+
+        public void Delay(int ms)
+        {
+            DateTime dateTimeNow = DateTime.Now;
+            TimeSpan duration = new TimeSpan(0, 0, 0, 0, ms);
+            DateTime dateTimeAdd = dateTimeNow.Add(duration);
+            while (dateTimeAdd >= dateTimeNow)
+            {
+                System.Windows.Forms.Application.DoEvents();
+                dateTimeNow = DateTime.Now;
+            }
         }
     }
 }
