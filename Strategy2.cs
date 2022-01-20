@@ -77,7 +77,7 @@ namespace CoinGo
                     Params.Avg_Volume_Now_Candle[ticker].Sum() > Params.Avg_Volume_Before_20_Candle[ticker] * 1.7 &&    // 현재Candle의 거래량 > 이전 10개 Candle 거래량의 평균보다 2.5배 크다.
                     Params.Avg_Price_Now_Candle[ticker].Sum() > 550000000 &&  // 3분봉 5억                              // 현재Candle의 거래대금 > 5억
                     Params.Avg_Volume_Now_Candle[ticker].Count > 200 &&                                                 // 현재Candle의 체결 갯수
-                                                                                                                        //Params.SpeedRatio[ticker] > 5 &&
+                    double.Parse(Params.CoinInfoDict[ticker].change) > 0 &&                                              // change > 0 
                     (double.Parse(cur_price) > 1000 && double.Parse(cur_price) < 1000000))                               // Price Range
                 {
                     if (Params.Avg_Closed_Price[ticker] < double.Parse(cur_price) &&                                      // 현재가 > 이전 10개 Candle의 종가 평균보다 크다

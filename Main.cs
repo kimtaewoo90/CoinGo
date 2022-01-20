@@ -202,6 +202,7 @@ namespace CoinGo
                 if (strategy1_check.Checked)
                 {
                     Strategy1_RSI_BB strategy1 = new Strategy1_RSI_BB(code);
+                    strategy1.GetCandleData();      // test
 
                     var curTime = Params.cur_time.ToString("yyyyMMddHHmmss");
                     DateTime temp = DateTime.ParseExact(curTime, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
@@ -225,8 +226,6 @@ namespace CoinGo
                     {
                         // Get new candle data
                         strategy1.GetCandleData();
-
-
                     }
 
 

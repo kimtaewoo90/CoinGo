@@ -1,10 +1,10 @@
 
 
+
 def rsi_upbit(code):
 
     import pandas as pd
     import requests
-
 
     url = "https://api.upbit.com/v1/candles/minutes/"+str(3)
     querystring = {"market" : code, "count" : "200"}
@@ -18,7 +18,7 @@ def rsi_upbit(code):
 
 
 def rsi_calc(ohlc, period):
-
+    
     import pandas as pd
 
     ohlc["trade_price"] = ohlc["trade_price"]

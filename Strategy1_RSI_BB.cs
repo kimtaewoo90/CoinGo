@@ -227,17 +227,17 @@ namespace CoinGo
         // New Version
         public void GetCandleData()
         {
-            var CandleData = Params.upbit.GetCandles_Minute(ticker, UpbitAPI.UpbitMinuteCandleType._3, count: 200);
-            CandleState candle = new CandleState(CandleData);
+            //var CandleData = Params.upbit.GetCandles_Minute(ticker, UpbitAPI.UpbitMinuteCandleType._3, count: 200);
+            //CandleState candle = new CandleState(CandleData);
 
-            Delay(100);
+            //Delay(100);
 
-            Params.CandleDict[ticker] = candle;
+            //Params.CandleDict[ticker] = candle;
 
-            GetRSI(CandleData);
+            Params.RSI_list[ticker].Add(GetRSI());
         }
 
-        public void GetRSI(string data)
+        public double GetRSI()
         {
             var pyEngine = Python.CreateEngine();
             var vScope = pyEngine.CreateScope();
@@ -245,18 +245,21 @@ namespace CoinGo
             try
             {
                 //var vSource = pyEngine.CreateScriptSourceFromFile("C:/Users/tangb/source/repos/pythonModule/env/pythonModule.py");
-                var vSource = pyEngine.CreateScriptSourceFromFile("C:/Users/tangb/source/repos/CoinGo/GetRSI.py");
+                var vSource = pyEngine.CreateScriptSourceFromFile(@"GetRSI.py");
                 vSource.Execute(vScope);
 
                 // 파이썬 스크립트 안의 함수 불러오기
                 var getReturnValue = vScope.GetVariable<Func<string, double>>("rsi_upbit");
 
-                Params.RSI_list[ticker].Add(double.Parse(getReturnValue(ticker).ToString()));
+                //Params.RSI_list[ticker].Add(double.Parse(getReturnValue(ticker).ToString()));
+
+                return double.Parse(getReturnValue(ticker).ToString());  
             }
 
             catch (Exception ex)
             {
                 MessageBox.Show(ex.ToString());
+                return 0;
             }
         }
 
