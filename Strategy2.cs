@@ -68,6 +68,7 @@ namespace CoinGo
             var cur_price = "0.0";
             if (Params.CoinInfoDict.ContainsKey(ticker))
                 cur_price = Params.CoinInfoDict[ticker].curPrice.ToString();
+
             if (Params.Avg_Price_Now_Candle.ContainsKey(ticker) &&
                 Params.Avg_Volume_Now_Candle.ContainsKey(ticker) &&
                 Params.Avg_Volume_Before_20_Candle.ContainsKey(ticker) &&
@@ -75,10 +76,11 @@ namespace CoinGo
             {
                 if (Params.Avg_Volume_Now_Candle[ticker].Sum() > Params.LatestCandleVolume[ticker] &&                   // 현재Candle의 거래량 > 이전Candle의 거래량 보다 크다.
                     Params.Avg_Volume_Now_Candle[ticker].Sum() > Params.Avg_Volume_Before_20_Candle[ticker] * 1.7 &&    // 현재Candle의 거래량 > 이전 10개 Candle 거래량의 평균보다 2.5배 크다.
-                    Params.Avg_Price_Now_Candle[ticker].Sum() > 550000000 &&  // 3분봉 5억                              // 현재Candle의 거래대금 > 5억
+                    Params.Avg_Price_Now_Candle[ticker].Sum() > 550000000 &&  // 3분봉 5.5억                            // 현재Candle의 거래대금 > 5.5억
                     Params.Avg_Volume_Now_Candle[ticker].Count > 200 &&                                                 // 현재Candle의 체결 갯수
-                    double.Parse(Params.CoinInfoDict[ticker].change) > 0 &&                                              // change > 0 
-                    (double.Parse(cur_price) > 1000 && double.Parse(cur_price) < 1000000))                               // Price Range
+                    double.Parse(Params.CoinInfoDict[ticker].change) > 0 &&                                             // change > 0 
+                    Params.bidVolume[ticker].Sum() / Params.askVolume[ticker].Sum() > 2 &&                              // 현재 Candle의 매수/매도 정도 ratio
+                    (double.Parse(cur_price) > 1000 && double.Parse(cur_price) < 1000000))                              // 타겟 코인의 Price Range
                 {
                     if (Params.Avg_Closed_Price[ticker] < double.Parse(cur_price) &&                                      // 현재가 > 이전 10개 Candle의 종가 평균보다 크다
                          double.Parse(cur_price) - Params.Avg_Closed_Price[ticker] > 2 * Params.upbit.GetHogaTick(double.Parse(cur_price)))
@@ -105,6 +107,11 @@ namespace CoinGo
 
             var avg_buy_price = Params.CoinPositionDict[ticker].avg_buy_price.ToString();
 
+            // 매수 후 30초 동안은 매도 금지
+            if (Params.FilledTime.ContainsKey(ticker) &&
+                (DateTime.Now - Params.FilledTime[ticker]).Seconds < 30)
+                return false;
+
             TimeSpan ts = DateTime.Now - DateTime.Now;
             if (Params.FilledTime.ContainsKey(ticker))
                 ts = DateTime.Now - Params.FilledTime[ticker];
@@ -115,15 +122,14 @@ namespace CoinGo
                 cur_price = Params.CoinInfoDict[ticker].curPrice.ToString();
 
             // 매도 주문
-            if ((((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 > 1.05 || 
-                (((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 < -1.95))
-                &&
-                double.Parse(cur_price) > 0.0)
+            if ( (((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 > 1.05 ||
+                 (((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 < -1.95)) &&
+                 double.Parse(cur_price) > 0.0
+               )
             {
                 // 익절
                 if (((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 > 1.05)
                 {
-                    Params.ProfitTimes += 1;
                     Params.LimitOrderPrice[ticker] = double.Parse(cur_price);
 
                     signal = true;
@@ -132,12 +138,12 @@ namespace CoinGo
                 // 손절
                 else if (((double.Parse(cur_price) / double.Parse(avg_buy_price)) - 1) * 100 < -1.95)
                 {
-                    Params.LosscutTimes += 1;
                     Params.LosscutCode[ticker] = DateTime.Now;
 
                     signal = true;
                 }
 
+                return signal;
             }
 
             else if (ts.Minutes >= 30)
@@ -154,9 +160,12 @@ namespace CoinGo
 
                     signal = true;
                 }
+
+                return signal;
             }
 
-            return signal;
+            else
+                return signal;         
         }
 
         public string SendLongOrder()
@@ -188,6 +197,10 @@ namespace CoinGo
                         //DB_Blt_Table bltDB = new DB_Blt_Table(DateTime.Now, ticker, )
 
                     }
+                    else
+                    {
+                        return "failed";
+                    }
                 }
 
                 return result;
@@ -214,14 +227,21 @@ namespace CoinGo
 
                 if (Params.LimitOrderPrice.ContainsKey(ticker))
                 {
-                    // 지정가 매도 주문(익절용)
+                    // 지정가 매도 주문(익절용)  
                     result = Params.upbit.MakeLimitOrder(market: ticker, side: UpbitAPI.UpbitOrderSide.ask, volume: Convert.ToDecimal(balance), price: Convert.ToDecimal(Params.LimitOrderPrice[ticker]));
+                    Params.ProfitTimes += 1;
+
+                    // * 익절도 시장가 매도로 변경.
+                    //result = Params.upbit.MakeOrder(market: ticker, side: UpbitAPI.UpbitOrderSide.ask, volume: Convert.ToDecimal(balance), ord_type: UpbitAPI.UpbitOrderType.market);
+
                     Params.LimitOrderPrice.Remove(ticker);
                 }
                 else
                 {
                     // 시장가 매도 주문(손절용)
                     result = Params.upbit.MakeOrder(market: ticker, side: UpbitAPI.UpbitOrderSide.ask, volume: Convert.ToDecimal(balance), ord_type: UpbitAPI.UpbitOrderType.market);
+                    Params.LosscutTimes += 1;
+
                 }
 
 

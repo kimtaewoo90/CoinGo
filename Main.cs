@@ -22,6 +22,7 @@ namespace CoinGo
         Thread OrderbookThread = null;
         Thread MarketThread = null;
         Thread LogThread = null;
+        Thread Strategy2 = null;
 
         Utils util = new Utils();
         delegate void Ctr_Involk(Control ctr, string text);
@@ -174,6 +175,7 @@ namespace CoinGo
                 if (Params.CoinPositionDict.ContainsKey(code))
                     Params.CoinPositionDict[code].cur_price = Params.CoinInfoDict[code].curPrice;
 
+                /*
                 if (tickspeed.Checked)
                 {
                     // TickSpeed
@@ -190,6 +192,7 @@ namespace CoinGo
                 {
                     Params.SpeedRatio[code] = 0;
                 }
+                */
 
                 #region 코인 골라내기
 
@@ -214,7 +217,6 @@ namespace CoinGo
                         curTimeText.Invoke(new MethodInvoker(delegate ()
                         {
                             curTimeText.Text = DateTime.Now.ToString("MM/dd HH:mm:ss");
-                            //candleTimeText.Text = DateTime.ParseExact(Params.Candle_Time[code], "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture).ToString("MM/dd HH:mm:ss");
                             CandleCode.Text = code;
                         }));
                     }
@@ -227,8 +229,6 @@ namespace CoinGo
                         // Get new candle data
                         strategy1.GetCandleData();
                     }
-
-
                 }
 
                 if (strategy2_check.Checked)
@@ -280,6 +280,7 @@ namespace CoinGo
                                     CandleCode.Text = code;
                                 }));
                             }
+
                             // Candle Changed
                             if (tradedTimeDouble - double.Parse(Params.Candle_Time[code].ToString()) > 300)
                             {
@@ -331,16 +332,18 @@ namespace CoinGo
                                 if (code == Params.Avg_Price_Now_Candle.Aggregate((x, y) => x.Value.Sum() > y.Value.Sum() ? x : y).Key || true)
                                 {
                                     var result = strategy2.SendLongOrder();
-                                    util.delay(5000);        // 매수 후 5초간 대기
-
-                                    if (result != "")
+                                    if (result != "failed")
                                     {
-                                        //UpdatePosition();
-                                        write_sys_log($"Bought {code} Coin", 0);
-                                        return;
+                                        write_sys_log($"[{code}] is sending Long Order, wait 5 sec", 0);
+                                        util.delay(5000);        // 매수 후 5초간 대기
+                                        write_sys_log($"[{code}] passed 5 sec ", 0);
+                                    }
+                                    else
+                                    {
+                                        write_sys_log($"{code}'s Not enough Money", 0);
                                     }
                                 }
-
+                                return;
                             }
                         }
 
@@ -350,9 +353,11 @@ namespace CoinGo
                             sell_signal = strategy2.RequestShortSignal();
 
                             if (sell_signal is true)
-                            {
+                            {           
                                 var result = strategy2.SendShortOrder();
+                                write_sys_log($"[{code}] is sending Short Order, wait 5 sec", 0);
                                 util.delay(5000);        // 매도 후 5초간 대기
+                                write_sys_log($"[{code}] passed 5 sec ", 0);
 
                                 JObject sellResult = JObject.Parse(result);
 
@@ -360,17 +365,10 @@ namespace CoinGo
                                 {
                                     Params.CoinPositionDict.Remove(code);
                                     DeletePositionGrid(code);
-                                    //Params.Strategy_PnL += double.Parse(sellResult["volume"].ToString()) * double.Parse(sellResult["avg_price"].ToString());
                                     return;
                                 }
-                                else
-                                {
-                                    util.delay(5000);
-                                    Params.CoinPositionDict.Remove(code);
-                                    DeletePositionGrid(code);
-                                    //Params.Strategy_PnL += double.Parse(sellResult["volume"].ToString()) * double.Parse(sellResult["avg_price"].ToString());
-                                    return;
-                                }
+
+                                else return;
                             }
                         }
                     }
@@ -862,7 +860,7 @@ namespace CoinGo
                     Params.TotalAsset = 0.0;
                     Params.CoinAsset = 0.0;
                     Params.CashAsset = 0.0;
-                    Params.PnL = 0.0;
+                    Params.PnL = 500000.0;
                     Params.PnLChange = 0.0;
                     var cash = 0.0;
 
@@ -974,7 +972,7 @@ namespace CoinGo
             cur_dt = cur_time.ToString("yyyy-") + cur_time.ToString("MM-") + cur_time.ToString("dd");
             cur_tm = Params.CurTime;
 
-            cur_dtm = "[" + cur_dt + " " + cur_tm + "]";
+            cur_dtm = "[" + cur_dt + " / " + cur_tm + "] ";
 
             if (is_Clear == 1)
             {
