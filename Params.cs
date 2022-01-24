@@ -91,6 +91,9 @@ namespace CoinGo
         public static Dictionary<string, double> CurrentTickSpeed = new Dictionary<string, double>();
         public static Dictionary<string, double> SpeedRatio = new Dictionary<string, double>();
 
+        public static Dictionary<string, List<double>> askVolume = new Dictionary<string, List<double>>();
+        public static Dictionary<string, List<double>> bidVolume = new Dictionary<string, List<double>>();
+
         // DB
         public static Dictionary<string, DB_Blt_Table> bltDBclass = new Dictionary<string, DB_Blt_Table>();
     }

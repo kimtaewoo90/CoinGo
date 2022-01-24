@@ -63,6 +63,8 @@ namespace CoinGo
                 Params.Avg_Price_Now_Candle[MarketTickers[i]] = new List<double>();
                 Params.HistoricalTickSpeed[MarketTickers[i]] = new List<double>();
                 Params.TradeVolume[MarketTickers[i]] = new List<double>();
+                Params.askVolume[MarketTickers[i]] = new List<double>();
+                Params.bidVolume[MarketTickers[i]] = new List<double>();
 
                 // strategy1
                 Params.RSI_list[MarketTickers[i]] = new List<double>();
@@ -291,6 +293,8 @@ namespace CoinGo
                                 Params.TradeVolume[code] = new List<double>();                              //Tick speed   
                                 Params.Avg_Volume_Now_Candle[code] = new List<double>();
                                 Params.Avg_Price_Now_Candle[code] = new List<double>();
+                                Params.askVolume[code] = new List<double>();
+                                Params.bidVolume[code] = new List<double>();
 
                                 Params.BuySignalRatio[code] = 0.0;
 
@@ -311,6 +315,16 @@ namespace CoinGo
                                         Math.Abs(double.Parse(res["trade_volume"].ToString())));
 
                                     Params.BuySignalRatio[code] = Params.Avg_Volume_Now_Candle[code].Sum() / Params.Avg_Volume_Before_20_Candle[code];
+
+                                    if (res["ask_bid"].ToString() == "ASK")
+                                    {
+                                        Params.askVolume[code].Add(double.Parse(res["trade_volume"].ToString()));
+                                    }
+                                    else if (res["ask_bid"].ToString() == "BID")
+                                    {
+                                        Params.bidVolume[code].Add(double.Parse(res["trade_volume"].ToString()));
+                                    }
+
                                 }        
                             }
                         }
